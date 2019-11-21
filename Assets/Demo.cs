@@ -14,9 +14,11 @@ public class Demo : MonoBehaviour
 
     public GameObject itemPrefab2;
 
+    public GameObject itemPrefab3;
+
     private void OnEnable()
     {
-        list = new VerticalScrollViewList<int>(scrollView, itemPrefab2, 10);
+        list = new VerticalScrollViewList<int>(scrollView, itemPrefab1, 10);
         list.onRenderItem += OnRenderItem;
         list.SetDatas(new int[100]);
     }
