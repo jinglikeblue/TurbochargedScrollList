@@ -27,7 +27,7 @@ public abstract class BaseScrollViewList<TData>
     /// <summary>
     /// 列表项间距
     /// </summary>
-    public float gap { get; private set; }
+    public float gap { get; private set; }    
 
     public Vector2 scrollPos { get; protected set; }
 
