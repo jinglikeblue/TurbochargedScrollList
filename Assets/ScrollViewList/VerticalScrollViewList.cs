@@ -71,11 +71,16 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
 
         //Debug.LogFormat("滚动比例:{0}, Content滚动位置:{1}, 显示的开始索引:{2} 开始的位置:{3}", scrollY, contentScrollPos, dataIdx, startPos);
 
-        var recycledItems = RecycleItems();
+        List<GameObject> recycledItems;
+        HashSet<GameObject> reusableItems;
+        RecycleItems(out recycledItems, out reusableItems);
+
         int usedRecycleItem = 0;
         //显示的内容刚好大于这个值即可           
         float contentHeightLimit = viewportHeight;
         float itemY = startPos;
+        Dictionary<int, GameObject> lastItemMap = new Dictionary<int, GameObject>(_itemMap);
+        _itemMap.Clear();
         do
         {
             if(dataIdx >= _datas.Length)
@@ -87,26 +92,34 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
 
             GameObject go;
             RectTransform rt;
-            
-            if (usedRecycleItem < recycledItems.Count)
+
+            if (lastItemMap.TryGetValue(dataIdx, out go))
             {
-                go = recycledItems[usedRecycleItem++];
                 rt = go.GetComponent<RectTransform>();
             }
             else
             {
-                go = GameObject.Instantiate(itemPrefab, content);
-                rt = go.GetComponent<RectTransform>();
-                rt.anchorMin = Vector2.up;
-                rt.anchorMax = Vector2.up;
-                rt.pivot = Vector2.up;
+                if (usedRecycleItem < recycledItems.Count)
+                {
+                    go = recycledItems[usedRecycleItem++];
+                    rt = go.GetComponent<RectTransform>();
+                }
+                else
+                {
+                    go = GameObject.Instantiate(itemPrefab, content);
+                    rt = go.GetComponent<RectTransform>();
+                    rt.anchorMin = Vector2.up;
+                    rt.anchorMax = Vector2.up;
+                    rt.pivot = Vector2.up;
+                }
+
+                go.name = string.Format("item_{0}", dataIdx);
+
+                //先渲染，再定位
+                RenderItem(dataIdx, go, data);                
             }
 
-            go.name = string.Format("item_{0}", dataIdx);
-
-            //先渲染，再定位
-            RenderItem(dataIdx, go, data);
-            _itemMap[data] = go;
+            _itemMap[dataIdx] = go;
 
             var pos = Vector3.zero;
             pos.y = itemY;
@@ -130,15 +143,16 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
         }
     }
 
-    Dictionary<TData, GameObject> _itemMap = new Dictionary<TData, GameObject>();
+    Dictionary<int, GameObject> _itemMap = new Dictionary<int, GameObject>();
     
     /// <summary>
     /// 回收列表项
     /// </summary>
     /// <returns></returns>
-    List<GameObject> RecycleItems()
+    void RecycleItems(out List<GameObject> recycledItems, out HashSet<GameObject> reusableItems)
     {               
-        List<GameObject> recycledItems = new List<GameObject>();
+        recycledItems = new List<GameObject>();
+        reusableItems = new HashSet<GameObject>();
 
         float viewportMinY = contentScrollPos;
         float viewportMaxY = contentScrollPos + viewportHeight;
@@ -150,14 +164,15 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
             var bottom = top + child.rect.height;
             if (bottom >= viewportMinY && top < viewportMaxY)
             {
-                //不用刷新数据
+                //不用刷新数据，仅需要调整位置
+                reusableItems.Add(child.gameObject);
             }
             else
             {
-                Debug.Log("回收并刷新数据:" + child.name);
+                //Debug.Log("回收并刷新数据:" + child.name);
+                recycledItems.Add(child.gameObject);
             }
-            recycledItems.Add(child.gameObject);
-        }
-        return recycledItems;
+            
+        }        
     }
 }
