@@ -15,6 +15,11 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
     /// </summary>
     public float itemHeightWithGap { get; private set; }
 
+    /// <summary>
+    /// 可视区域高度
+    /// </summary>
+    public float viewportHeight { get; private set; }
+
     public VerticalScrollViewList(GameObject scrollView, GameObject itemPrefab, float gap = 0) : base(scrollView, itemPrefab, gap)
     {
         itemHeightWithGap = itemSize.y + gap;
@@ -32,6 +37,15 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
         Refresh();
     }
 
+    void UpdateViewportHeight()
+    {
+        viewportHeight = scrollRect.viewport.rect.height;
+        if (0 == viewportHeight)
+        {
+            viewportHeight = scrollRect.GetComponent<RectTransform>().rect.height;
+        }
+    }
+
     protected override void Refresh()
     {        
         //滚动位置
@@ -39,8 +53,10 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
 
         //内容容器高度
         var contentHeight = content.sizeDelta.y;
-        
-        contentScrollPos = scrollY * (contentHeight - scrollRect.viewport.rect.height);        
+
+        UpdateViewportHeight();
+
+        contentScrollPos = scrollY * (contentHeight - viewportHeight);        
 
         //通过内容容器滚动位置，计算显示的数据索引(这里+gap让索引开始的位置更精确)
         int dataIdx = (int)((contentScrollPos + gap) / itemHeightWithGap);
@@ -58,7 +74,7 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
         var recycledItems = RecycleItems();
         int usedRecycleItem = 0;
         //显示的内容刚好大于这个值即可           
-        float contentHeightLimit = scrollRect.viewport.rect.height;
+        float contentHeightLimit = viewportHeight;
         float itemY = startPos;
         do
         {
@@ -125,7 +141,7 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
         List<GameObject> recycledItems = new List<GameObject>();
 
         float viewportMinY = contentScrollPos;
-        float viewportMaxY = contentScrollPos + scrollRect.viewport.rect.height;
+        float viewportMaxY = contentScrollPos + viewportHeight;
 
         for (int i = 0; i < content.childCount; i++)
         {
