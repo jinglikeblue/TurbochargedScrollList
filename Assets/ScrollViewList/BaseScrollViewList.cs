@@ -85,8 +85,7 @@ public abstract class BaseScrollViewList<TData>
     {
         Clear();
         _datas = datas;
-        OnSetDatas();
-        Refresh();
+        OnSetDatas();        
     }
 
     protected abstract void OnSetDatas();

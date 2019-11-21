@@ -19,28 +19,35 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
         h += ((_datas.Length - 1) * gap);
 
         SetContentSize(itemSize.x, h);
+
+        Refresh();
     }
 
     protected override void Refresh()
     {
-        var showStartPos = 1 - scrollPos.y;        
+        var itemHeightWithGap = itemSize.y + gap;
 
-        int startIdx = (int)(_datas.Length * showStartPos);
+        //滚动位置
+        var scrollY = 1 - scrollPos.y;        
 
-        var contentHeight = content.GetComponent<RectTransform>().sizeDelta.y;
+        //内容容器高度
+        var contentHeight = content.sizeDelta.y;
 
-        var contentPos = showStartPos * (contentHeight - scrollRect.viewport.rect.height);
+        //内容容器滚动位置
+        var contentScrollPos = scrollY * (contentHeight - scrollRect.viewport.rect.height);
 
-        Debug.LogFormat("滚动位置:{0}, 起始索引:{1}, Content位置:{2}", showStartPos, startIdx, contentPos);
+        Debug.LogFormat("滚动位置:{0}, Content位置:{1}", scrollY, contentScrollPos);
 
-        int dataIdx = (int)(contentPos / (itemSize.y + gap));
+        //通过内容容器滚动位置，计算显示的数据索引
+        int dataIdx = (int)(contentScrollPos / itemHeightWithGap);
 
         if(dataIdx < 0)
         {
             dataIdx = 0;
         }
 
-        float startPos = -1 * dataIdx * (itemSize.y + gap);
+        //通过索引反推出精确的渲染坐标
+        float startPos = -1 * dataIdx * itemHeightWithGap;
 
         Debug.LogFormat("显示的开始索引:{0} 开始的位置:{1}", dataIdx, startPos);
 
@@ -68,9 +75,9 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
             {
                 go = GameObject.Instantiate(itemPrefab, content);
                 rt = go.GetComponent<RectTransform>();
-                rt.anchorMin = new Vector2(0, 1);
-                rt.anchorMax = new Vector2(0, 1);
-                rt.pivot = new Vector2(0, 1);                
+                rt.anchorMin = Vector2.up;
+                rt.anchorMax = Vector2.up;
+                rt.pivot = Vector2.up;
             }
 
             go.name = string.Format("item_{0}", dataIdx);
@@ -86,7 +93,7 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
             //下一个item的索引
             dataIdx++;
 
-            if(-contentPos - itemY >= contentHeightLimit)
+            if(-contentScrollPos - itemY >= contentHeightLimit)
             {
                 //显示区域已满
                 break;
@@ -99,9 +106,11 @@ public class VerticalScrollViewList<TData> : BaseScrollViewList<TData>
             GameObject.Destroy(items[i]);
         }
     }
-
     
-
+    /// <summary>
+    /// 回收列表项
+    /// </summary>
+    /// <returns></returns>
     List<GameObject> RecycleItems()
     {
         List<GameObject> recycledItems = new List<GameObject>();
