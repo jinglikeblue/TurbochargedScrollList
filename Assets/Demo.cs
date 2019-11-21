@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class Demo : MonoBehaviour
@@ -18,9 +15,9 @@ public class Demo : MonoBehaviour
 
     private void OnEnable()
     {
-        list = new VerticalScrollViewList<int>(scrollView, itemPrefab1, 10);
+        list = new VerticalScrollViewList<int>(scrollView, itemPrefab3, 10);
         list.onRenderItem += OnRenderItem;
-        list.SetDatas(new int[100]);
+        list.SetDatas(new int[10000]);
     }
 
     private void OnRenderItem(int index, GameObject item, int data)

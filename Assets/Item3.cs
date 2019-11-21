@@ -10,7 +10,7 @@ public class Item3 : MonoBehaviour
     private void Awake()
     {
         img.sprite = sprites[Random.Range(0, sprites.Length)];
-        img.SetNativeSize();
+        //img.SetNativeSize();
     }
 
     private void OnEnable()
