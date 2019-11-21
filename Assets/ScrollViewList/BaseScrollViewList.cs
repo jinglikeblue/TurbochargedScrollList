@@ -6,20 +6,66 @@ using UnityEngine.UI;
 /// </summary>
 public abstract class BaseScrollViewList<TData>
 {
-    public readonly ScrollRect scrollRect;
+    public delegate void OnRenderItem(int index, GameObject item, TData data);
+
+    public ScrollRect scrollRect { get; private set; }
     
-    public readonly Transform content;    
+    public RectTransform content { get; private set; }
 
-    public readonly GameObject gameObject;
+    public GameObject gameObject { get; private set; }
 
-    TData[] _datas;
+    /// <summary>
+    /// 列表项Prefab
+    /// </summary>
+    public GameObject itemPrefab { get; private set; }
+
+    /// <summary>
+    /// 列表项大小
+    /// </summary>
+    public Vector2 itemSize { get; private set; }
+
+    /// <summary>
+    /// 列表项间距
+    /// </summary>
+    public float gap { get; private set; }
+
+    public Vector2 scrollPos { get; protected set; }
+
+    protected TData[] _datas;
+
+    public event OnRenderItem onRenderItem;
+
+    public BaseScrollViewList(GameObject scrollView, GameObject itemPrefab, float gap)
+    {
+        Init(scrollView);
+        this.itemPrefab = itemPrefab;
+        this.gap = gap;
+
+        itemSize = itemPrefab.GetComponent<RectTransform>().sizeDelta;
+        scrollPos = Vector2.up;
+    }    
+
+    void Init(GameObject gameObject)
+    {
+        scrollRect = gameObject.GetComponent<ScrollRect>();
+        
+        content = scrollRect.content;
+        content.localPosition = Vector3.zero;
+
+        scrollRect.onValueChanged.AddListener(OnScroll);
+    }
+
+    protected void RenderItem(int idx, GameObject go, TData data)
+    {
+        onRenderItem?.Invoke(idx, go, data);
+    }
 
     /// <summary>
     /// 获取数据拷贝
     /// </summary>
     public TData[] GetDatasCopy()
     {
-        if(null == _datas)
+        if (null == _datas)
         {
             return null;
         }
@@ -29,25 +75,23 @@ public abstract class BaseScrollViewList<TData>
         return datas;
     }
 
-    public BaseScrollViewList(GameObject gameObject)
-    {
-        this.gameObject = gameObject;
-        scrollRect = gameObject.GetComponent<ScrollRect>();        
-        content = scrollRect.viewport.GetChild(0);
-
-        scrollRect.onValueChanged.AddListener(OnScroll);
-    }
-
     private void OnScroll(Vector2 v)
-    {
-        Debug.LogFormat("滚动列表: {0}", v.ToString());
+    {        
+        scrollPos = v;
+        Refresh();
     }
     
     public void SetDatas(TData[] datas)
     {
         Clear();
         _datas = datas;
-    }   
+        OnSetDatas();
+        Refresh();
+    }
+
+    protected abstract void OnSetDatas();
+
+    protected abstract void Refresh();   
     
     public void Clear()
     {
@@ -56,6 +100,12 @@ public abstract class BaseScrollViewList<TData>
         {
             GameObject.Destroy(content.GetChild(childIdx));
         }
+    }
+
+    protected void SetContentSize(float x, float y)
+    {
+        content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, x);
+        content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, y);
     }
 
     public void Destroy()
