@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Jing.ScrollViewList
@@ -81,26 +82,27 @@ namespace Jing.ScrollViewList
         private void OnScroll(Vector2 v)
         {
             scrollPos = v;
-            Refresh();
+            OnScroll();
         }
 
         public void SetDatas(TData[] datas)
         {
-            Clear();
-            _datas = datas;
+            _datas = new TData[datas.Length];            
+            Array.Copy(datas, _datas, _datas.Length);
+            Clear();            
             OnSetDatas();
         }
 
         protected abstract void OnSetDatas();
 
-        protected abstract void Refresh();
+        protected abstract void OnScroll();
 
         public void Clear()
         {
             int childIdx = content.childCount;
             while (--childIdx > -1)
             {
-                GameObject.Destroy(content.GetChild(childIdx));
+                GameObject.Destroy(content.GetChild(childIdx).gameObject);
             }
         }
 

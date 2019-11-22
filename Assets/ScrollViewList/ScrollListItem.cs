@@ -20,11 +20,6 @@ namespace Jing.ScrollViewList
         public object data { get; internal set; }
 
         /// <summary>
-        /// 最后检测变化时的矩形数据
-        /// </summary>
-        Rect _lastRect;
-
-        /// <summary>
         /// 宽度
         /// </summary>
         public float width
@@ -49,21 +44,6 @@ namespace Jing.ScrollViewList
         private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
-            _lastRect = rectTransform.rect;
-        }
-
-        /// <summary>
-        /// 检查尺寸是否有改变
-        /// </summary>
-        /// <returns></returns>
-        internal bool CheckSizeChanged()
-        {
-            if(_lastRect.width != rectTransform.rect.width || _lastRect.height != rectTransform.rect.height)
-            {
-                _lastRect = rectTransform.rect;
-                return true;
-            }
-            return false;
         }
     }
 }
