@@ -112,9 +112,11 @@ namespace Jing.ScrollViewList
                     item.gameObject.name = string.Format("item_{0}", dataIdx);
 
                     //先渲染，再定位
-                    RenderItem(dataIdx, item, data);
+                    item.index = dataIdx;
+                    item.data = data;
+                    RenderItem(item, data);
                 }
-
+                
                 _itemMap[dataIdx] = item;
 
                 var pos = Vector3.zero;

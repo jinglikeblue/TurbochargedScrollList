@@ -8,7 +8,7 @@ namespace Jing.ScrollViewList
     /// </summary>
     public abstract class BaseScrollViewList<TData>
     {
-        public delegate void OnRenderItem(int index, ScrollListItem item, TData data);
+        public delegate void OnRenderItem(ScrollListItem item, TData data);
 
         public ScrollRect scrollRect { get; private set; }
 
@@ -58,9 +58,9 @@ namespace Jing.ScrollViewList
             scrollRect.onValueChanged.AddListener(OnScroll);
         }
 
-        protected void RenderItem(int idx, ScrollListItem item, TData data)
+        protected void RenderItem(ScrollListItem item, TData data)
         {
-            _itemRender.Invoke(idx, item, data);
+            _itemRender.Invoke(item, data);
         }
 
         /// <summary>
