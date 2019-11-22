@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Jing.ScrollViewList;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Demo : MonoBehaviour
@@ -15,12 +16,11 @@ public class Demo : MonoBehaviour
 
     private void OnEnable()
     {
-        list = new VerticalScrollViewList<int>(scrollView, itemPrefab3, 10);
-        list.onRenderItem += OnRenderItem;
+        list = new VerticalScrollViewList<int>(scrollView, itemPrefab3, OnRenderItem, 10);        
         list.SetDatas(new int[10000]);
     }
 
-    private void OnRenderItem(int index, GameObject item, int data)
+    private void OnRenderItem(int index, ScrollListItem item, int data)
     {
         var text = item.transform.Find("Text").GetComponent<Text>();
         text.text = string.Format("Index:{0}", index);
