@@ -6,7 +6,7 @@ namespace Jing.ScrollViewList
     /// </summary>
     [RequireComponent(typeof(RectTransform))]    
     public class ScrollListItem : MonoBehaviour
-    {
+    {        
         public RectTransform rectTransform { get; private set; }
 
         /// <summary>
@@ -28,6 +28,15 @@ namespace Jing.ScrollViewList
             {
                 return rectTransform.rect.width;
             }
+            set
+            {
+                if (rectTransform.sizeDelta.x != value)
+                {
+                    var sd = rectTransform.sizeDelta;
+                    sd.x = value;
+                    rectTransform.sizeDelta = sd;
+                }
+            }
         }
 
         /// <summary>
@@ -39,31 +48,20 @@ namespace Jing.ScrollViewList
             {
                 return rectTransform.rect.height;
             }
+            set
+            {
+                if (rectTransform.sizeDelta.y != value)
+                {
+                    var sd = rectTransform.sizeDelta;
+                    sd.y = value;
+                    rectTransform.sizeDelta = sd;
+                }
+            }
         }
 
         private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
-        }
-
-        internal void ChangeWidth(float w)
-        {
-            if (rectTransform.sizeDelta.x != w)
-            {
-                var sd = rectTransform.sizeDelta;
-                sd.x = w;
-                rectTransform.sizeDelta = sd;
-            }
-        }
-
-        internal void ChangeHeight(float h)
-        {
-            if (rectTransform.sizeDelta.y != h)
-            {
-                var sd = rectTransform.sizeDelta;
-                sd.y = h;
-                rectTransform.sizeDelta = sd;
-            }
         }
 
         internal void ChangeSize(float w, float h)

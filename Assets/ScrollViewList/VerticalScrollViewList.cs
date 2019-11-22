@@ -156,8 +156,14 @@ namespace Jing.ScrollViewList
                         item.rectTransform.pivot = Vector2.up;
                     }
 
-                    item.ChangeHeight(_itemModels[dataIdx].height);
-                    item.gameObject.name = string.Format("item_{0}", dataIdx);
+                    item.height = _itemModels[dataIdx].height;
+                    var name = string.Format("item_{0}", dataIdx);
+                    if (GameObject.Find(item.gameObject.name))
+                    {
+                        Debug.Log("?????");
+                    }
+                    item.gameObject.name = name;
+                    
 
                     //先渲染，再定位
                     item.index = dataIdx;
@@ -166,13 +172,15 @@ namespace Jing.ScrollViewList
                 }
                 else
                 {
-                    if (item.height != _itemModels[dataIdx].height)
-                    {
-                        Debug.Log($"item[{dataIdx}]的尺寸改变，重构列表");
-                        _itemModels[dataIdx].height = item.height;
-                        MarkDirty(true);
-                    }
+                    lastItemMap.Remove(dataIdx);
                 }
+
+                if (item.height != _itemModels[dataIdx].height)
+                {
+                    Debug.Log($"item[{dataIdx}]的尺寸改变，重构列表");
+                    _itemModels[dataIdx].height = item.height;
+                    MarkDirty(true);
+                }                
                 
                 _showingItems[dataIdx] = item;
 
@@ -187,6 +195,11 @@ namespace Jing.ScrollViewList
                 if (-contentRenderStartPos - itemY >= contentHeightLimit)
                 {
                     //显示区域已满
+
+                    foreach(var unusefulItem in lastItemMap.Values)
+                    {
+                        recycledItems.Add(unusefulItem);
+                    }
                     break;
                 }
             }
@@ -198,33 +211,36 @@ namespace Jing.ScrollViewList
             }
         }
 
-        Action _work;
+        Coroutine _updateFlag;
+        bool _isRebuild = false;
 
         void MarkDirty(bool isRebuild)
         {
-            Action work;
-            if (isRebuild)
-            {
-                work = RebuildContent;
-            }
-            else
-            {
-                work = Refresh;
-            }
+            _isRebuild = _isRebuild | isRebuild;
 
-            if (_work == null)
+            if (null == _updateFlag)
             {
-                scrollRect.StartCoroutine(NextFrameWork());
-            }
-
-            _work = work;            
+                _updateFlag = scrollRect.StartCoroutine(NextFrameWork());
+            }        
         }
 
         IEnumerator NextFrameWork()
         {
-            yield return new WaitForEndOfFrame();
-            _work.Invoke();
-            _work = null;
+            yield return new WaitForEndOfFrame();            
+            var isRebuild = _isRebuild;
+            _isRebuild = false;
+            _updateFlag = null;
+
+            if (isRebuild)
+            {
+                Debug.Log("Rebuild");
+                RebuildContent();
+            }
+            else
+            {
+                Refresh();
+            }
+
         }
 
         /// <summary>
@@ -244,7 +260,7 @@ namespace Jing.ScrollViewList
             float viewportMaxY = contentRenderStartPos + viewportHeight;
 
             foreach (var item in _showingItems.Values)
-            {
+            {                
                 var top = -item.rectTransform.localPosition.y;
                 var bottom = top + item.height;
                 if (bottom >= viewportMinY && top < viewportMaxY)
