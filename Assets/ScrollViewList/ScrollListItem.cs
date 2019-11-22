@@ -45,5 +45,36 @@ namespace Jing.ScrollViewList
         {
             rectTransform = GetComponent<RectTransform>();
         }
+
+        internal void ChangeWidth(float w)
+        {
+            if (rectTransform.sizeDelta.x != w)
+            {
+                var sd = rectTransform.sizeDelta;
+                sd.x = w;
+                rectTransform.sizeDelta = sd;
+            }
+        }
+
+        internal void ChangeHeight(float h)
+        {
+            if (rectTransform.sizeDelta.y != h)
+            {
+                var sd = rectTransform.sizeDelta;
+                sd.y = h;
+                rectTransform.sizeDelta = sd;
+            }
+        }
+
+        internal void ChangeSize(float w, float h)
+        {
+            if (rectTransform.sizeDelta.x != w || rectTransform.sizeDelta.y != h)
+            {
+                var sd = rectTransform.sizeDelta;
+                sd.x = w;
+                sd.y = h;
+                rectTransform.sizeDelta = sd;
+            }
+        }
     }
 }

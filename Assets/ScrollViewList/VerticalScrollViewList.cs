@@ -4,6 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Jing.ScrollViewList
 {
+    public class VerticalScrollViewList : VerticalScrollViewList<object>
+    {
+        public VerticalScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
+        {
+        }
+    }
+
     /// <summary>
     /// 垂直滚动列表
     /// </summary>
@@ -83,9 +90,6 @@ namespace Jing.ScrollViewList
         {
             UpdateViewportHeight();
 
-            //滚动位置
-            //var scrollY = 1 - scrollPos.y;
-
             //内容容器高度
             var contentHeight = content.sizeDelta.y;            
 
@@ -114,24 +118,7 @@ namespace Jing.ScrollViewList
                 startPos = dataBottom + gap;
             }
 
-            Debug.Log($"起始索引:{dataIdx}");
-            if(dataIdx > 0)
-            {
-                var i = 0;
-            }
-
-            ////通过内容容器滚动位置，计算显示的数据索引(这里+gap让索引开始的位置更精确)
-            //int dataIdx = (int)((contentScrollPos + gap) / itemHeightWithGap);
-
-            //if (dataIdx < 0)
-            //{
-            //    dataIdx = 0;
-            //}
-
-            //通过索引反推出精确的渲染坐标
-            //float startPos = -1 * dataIdx * itemHeightWithGap;
-
-            //Debug.LogFormat("滚动比例:{0}, Content滚动位置:{1}, 显示的开始索引:{2} 开始的位置:{3}", scrollY, contentScrollPos, dataIdx, startPos);
+            //Debug.Log($"起始索引:{dataIdx}");
 
             List<ScrollListItem> recycledItems;
             RecycleItems(out recycledItems);
@@ -139,9 +126,9 @@ namespace Jing.ScrollViewList
             int usedRecycleItem = 0;
             //显示的内容刚好大于这个值即可           
             float contentHeightLimit = viewportHeight;
-            float itemY = startPos;
-            Dictionary<int, ScrollListItem> lastItemMap = new Dictionary<int, ScrollListItem>(_itemMap);
-            _itemMap.Clear();
+            float itemY = -startPos;
+            Dictionary<int, ScrollListItem> lastItemMap = new Dictionary<int, ScrollListItem>(_showingItems);
+            _showingItems.Clear();
             do
             {
                 if (dataIdx >= _datas.Length)
@@ -169,6 +156,7 @@ namespace Jing.ScrollViewList
                         item.rectTransform.pivot = Vector2.up;
                     }
 
+                    item.ChangeHeight(_itemModels[dataIdx].height);
                     item.gameObject.name = string.Format("item_{0}", dataIdx);
 
                     //先渲染，再定位
@@ -176,15 +164,17 @@ namespace Jing.ScrollViewList
                     item.data = data;
                     RenderItem(item, data);
                 }
-                
-                _itemMap[dataIdx] = item;
-
-                if (item.height != _itemModels[dataIdx].height)
+                else
                 {
-                    Debug.Log($"item[{dataIdx}]的尺寸改变，重构列表");
-                    _itemModels[dataIdx].height = item.height;
-                    MarkDirty(true);
+                    if (item.height != _itemModels[dataIdx].height)
+                    {
+                        Debug.Log($"item[{dataIdx}]的尺寸改变，重构列表");
+                        _itemModels[dataIdx].height = item.height;
+                        MarkDirty(true);
+                    }
                 }
+                
+                _showingItems[dataIdx] = item;
 
                 var pos = Vector3.zero;
                 pos.y = itemY;
@@ -240,7 +230,7 @@ namespace Jing.ScrollViewList
         /// <summary>
         /// 当前显示的Item表
         /// </summary>
-        Dictionary<int, ScrollListItem> _itemMap = new Dictionary<int, ScrollListItem>();
+        Dictionary<int, ScrollListItem> _showingItems = new Dictionary<int, ScrollListItem>();
 
         /// <summary>
         /// 回收列表项
@@ -253,36 +243,18 @@ namespace Jing.ScrollViewList
             float viewportMinY = contentRenderStartPos;
             float viewportMaxY = contentRenderStartPos + viewportHeight;
 
-            //foreach (var item in _itemMap.Values)
-            //{
-            //    var top = -item.rectTransform.localPosition.y;
-            //    var bottom = top + item.height;
-            //    if (bottom >= viewportMinY && top < viewportMaxY)
-            //    {
-            //        //不用刷新数据，仅需要调整位置
-            //    }
-            //    else
-            //    {
-            //        //Debug.Log("回收并刷新数据:" + child.name);
-            //        recycledItems.Add(item);
-            //    }
-            //}
-
-            for (int i = 0; i < content.childCount; i++)
+            foreach (var item in _showingItems.Values)
             {
-                var t = content.GetChild(i);
-                var child = t.GetComponent<ScrollListItem>();
-                var top = -child.rectTransform.localPosition.y;
-                var bottom = top + child.height;
+                var top = -item.rectTransform.localPosition.y;
+                var bottom = top + item.height;
                 if (bottom >= viewportMinY && top < viewportMaxY)
                 {
                     //不用刷新数据，仅需要调整位置
-                    //reusableItems.Add(child);
                 }
                 else
                 {
                     //Debug.Log("回收并刷新数据:" + child.name);
-                    recycledItems.Add(child);
+                    recycledItems.Add(item);
                 }
             }
         }
