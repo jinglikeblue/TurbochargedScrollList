@@ -17,7 +17,7 @@ public class Demo : MonoBehaviour
     private void OnEnable()
     {
         list = new VerticalScrollViewList<int>(scrollView, itemPrefab3, RenderItem, 10);        
-        list.SetDatas(new int[10]);
+        list.SetDatas(new int[100]);
     }
 
     private void RenderItem(ScrollListItem item, int data)
