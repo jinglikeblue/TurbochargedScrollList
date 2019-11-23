@@ -9,6 +9,26 @@ namespace Jing.ScrollViewList
     /// </summary>
     public abstract class BaseScrollViewList<TData>
     {
+        protected class ItemModel<T>
+        {
+            public readonly T data;
+
+            public float height;
+
+            public float width;
+
+            public readonly GameObject itemPrefab;
+
+            public ItemModel(T data, GameObject itemPrefab)
+            {
+                this.data = data;
+                this.itemPrefab = itemPrefab;
+                var rt = itemPrefab.GetComponent<RectTransform>();
+                height = rt.rect.height;
+                width = rt.rect.width;
+            }
+        }
+
         public delegate void OnRenderItem(ScrollListItem item, TData data);
 
         public ScrollRect scrollRect { get; private set; }
@@ -18,14 +38,9 @@ namespace Jing.ScrollViewList
         public GameObject gameObject { get; private set; }
 
         /// <summary>
-        /// 列表项Prefab
+        /// 视口大小
         /// </summary>
-        public GameObject itemPrefab { get; private set; }
-
-        /// <summary>
-        /// 列表项大小
-        /// </summary>
-        public Vector2 itemSize { get; private set; }
+        public Vector2 viewportSize { get; private set; }
 
         /// <summary>
         /// 列表项间距
@@ -38,14 +53,12 @@ namespace Jing.ScrollViewList
 
         OnRenderItem _itemRender;
 
-        public BaseScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap)
+        public BaseScrollViewList(GameObject scrollView, OnRenderItem itemRender, float gap)
         {
-            Init(scrollView);
-            this.itemPrefab = itemPrefab;
+            Init(scrollView);            
             this.gap = gap;
             _itemRender = itemRender;
-
-            itemSize = itemPrefab.GetComponent<RectTransform>().sizeDelta;
+            
             scrollPos = Vector2.up;
         }
 
@@ -57,6 +70,19 @@ namespace Jing.ScrollViewList
             content.localPosition = Vector3.zero;
 
             scrollRect.onValueChanged.AddListener(OnScroll);
+        }
+
+        /// <summary>
+        /// 刷新显示视口的高度
+        /// </summary>
+        protected void UpdateViewportSize()
+        {
+            viewportSize = scrollRect.viewport.rect.size;
+            //viewportHeight = scrollRect.viewport.rect.height;
+            if (0 == viewportSize.x && 0 == viewportSize.y)
+            {
+                viewportSize = scrollRect.GetComponent<RectTransform>().rect.size;
+            }            
         }
 
         protected void RenderItem(ScrollListItem item, TData data)
@@ -85,15 +111,15 @@ namespace Jing.ScrollViewList
             OnScroll();
         }
 
-        public void SetDatas(TData[] datas)
+        public void SetDatas(TData[] datas, GameObject itemPrefab)
         {
             _datas = new TData[datas.Length];            
             Array.Copy(datas, _datas, _datas.Length);
             Clear();            
-            OnSetDatas();
+            OnSetDatas(itemPrefab);
         }
 
-        protected abstract void OnSetDatas();
+        protected abstract void OnSetDatas(GameObject itemPrefab);
 
         protected abstract void OnScroll();
 

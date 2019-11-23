@@ -6,8 +6,17 @@ namespace Jing.ScrollViewList
 {
     public class VerticalScrollViewList : VerticalScrollViewList<object>
     {
-        public VerticalScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
+        public VerticalScrollViewList(GameObject scrollView, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemRender, gap)
         {
+
+        }
+
+        public void SetDatas<TData>(TData[] datas, GameObject itemPrefab)
+        {
+            _datas = new object[datas.Length];
+            Array.Copy(datas, _datas, _datas.Length);
+            Clear();
+            OnSetDatas(itemPrefab);
         }
     }
 
@@ -20,16 +29,6 @@ namespace Jing.ScrollViewList
         /// 内容容器滚动位置
         /// </summary>
         public float contentRenderStartPos { get; private set; }
-
-        /// <summary>
-        /// 列表项高度加上间距的值
-        /// </summary>
-        public float itemHeightWithGap { get; private set; }
-
-        /// <summary>
-        /// 可视区域高度
-        /// </summary>
-        public float viewportHeight { get; private set; }
 
         /// <summary>
         /// 数据对象显示的起始位置，这里是垂直列表，只存储Y坐标
@@ -46,21 +45,19 @@ namespace Jing.ScrollViewList
         /// </summary>
         List<ScrollListItem> _recycledItems = new List<ScrollListItem>();
 
-        public VerticalScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
+        public VerticalScrollViewList(GameObject scrollView, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemRender, gap)
         {
-            itemHeightWithGap = itemSize.y + gap;
+
         }
 
-        protected override void OnSetDatas()
-        {
+        protected override void OnSetDatas(GameObject itemPrefab)
+        {            
             _itemModels = new ItemModel<TData>[_datas.Length];
             for(int i = 0; i < _datas.Length; i++)
             {
                 //初始化位置，用Prefab的默认数据即可
-                _itemModels[i] = new ItemModel<TData>(_datas[i]);
-                _itemModels[i].height = itemSize.y;
+                _itemModels[i] = new ItemModel<TData>(_datas[i], itemPrefab);                                
             }
-
             //RebuildContent();
             MarkDirty(EUpdateType.REBUILD);
         }
@@ -74,21 +71,9 @@ namespace Jing.ScrollViewList
             }
             h -= gap;
 
-            SetContentSize(itemSize.x, h);
+            SetContentSize(viewportSize.x, h);
 
             Refresh();
-        }
-
-        /// <summary>
-        /// 刷新显示视口的高度
-        /// </summary>
-        void UpdateViewportHeight()
-        {
-            viewportHeight = scrollRect.viewport.rect.height;
-            if (0 == viewportHeight)
-            {
-                viewportHeight = scrollRect.GetComponent<RectTransform>().rect.height;
-            }
         }
 
         protected override void OnScroll()
@@ -98,7 +83,7 @@ namespace Jing.ScrollViewList
 
         protected void Refresh()
         {
-            UpdateViewportHeight();
+            UpdateViewportSize();
 
             //内容容器高度
             var contentHeight = content.sizeDelta.y;            
@@ -108,9 +93,9 @@ namespace Jing.ScrollViewList
             {
                 contentRenderStartPos = 0;
             }
-            else if(contentRenderStartPos > contentHeight - viewportHeight)
+            else if(contentRenderStartPos > contentHeight - viewportSize.y)
             {
-                contentRenderStartPos = contentHeight - viewportHeight;
+                contentRenderStartPos = contentHeight - viewportSize.y;
             }
 
             int dataIdx;
@@ -129,7 +114,7 @@ namespace Jing.ScrollViewList
             }                                 
             
             //显示的内容刚好大于这个值即可           
-            float contentHeightLimit = viewportHeight;
+            float contentHeightLimit = viewportSize.y;
             float itemY = -startPos;
 
             /// <summary>
@@ -149,6 +134,22 @@ namespace Jing.ScrollViewList
                 
                 ScrollListItem item = CreateItem(data, dataIdx, lastShowingItems);
                 _showingItems[dataIdx] = item;
+
+                if (item.height != _itemModels[item.index].height)
+                {
+                    //Debug.Log($"item[{item.index}]的尺寸改变");
+                    _itemModels[item.index].height = item.height;
+                    _showingItems.Clear();
+                    _recycledItems.Clear();
+                    for(int i = 0; i < content.childCount; i++)
+                    {
+                        var go = content.GetChild(i).gameObject;
+                        go.SetActive(false);
+                        _recycledItems.Add(go.GetComponent<ScrollListItem>());
+                    }
+                    RebuildContent();
+                    return;
+                }
 
                 var pos = Vector3.zero;
                 pos.y = itemY;
@@ -218,7 +219,7 @@ namespace Jing.ScrollViewList
                     RebuildContent();
                     break;
                 case EUpdateType.NONE:
-                    CheckItemsSize();
+                    //CheckItemsSize();
                     break;
             }            
         }
@@ -271,7 +272,7 @@ namespace Jing.ScrollViewList
             }
             else
             {
-                var go = GameObject.Instantiate(itemPrefab, content);
+                var go = GameObject.Instantiate(_itemModels[index].itemPrefab, content);
                 item = go.AddComponent<ScrollListItem>();
                 item.rectTransform.anchorMin = Vector2.up;
                 item.rectTransform.anchorMax = Vector2.up;
@@ -279,7 +280,7 @@ namespace Jing.ScrollViewList
                 Debug.Log($"新生村的Item");
             }
 
-            item.height = _itemModels[index].height;
+            //item.height = _itemModels[index].height;
             var name = string.Format("item_{0}", index);
             //Debug.Log($"刷新Item: {name}");
             item.gameObject.name = name;
@@ -287,7 +288,6 @@ namespace Jing.ScrollViewList
             item.index = index;
             item.data = data;
             RenderItem(item, data);
-            
 
             return item;
         }

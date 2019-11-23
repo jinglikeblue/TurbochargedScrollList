@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Jing.ScrollViewList;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Item3 : MonoBehaviour
@@ -9,12 +11,26 @@ public class Item3 : MonoBehaviour
 
     private void Awake()
     {
-        img.sprite = sprites[Random.Range(0, sprites.Length)];
-        //img.SetNativeSize();
+
     }
 
     private void OnEnable()
     {
-        
+        StartCoroutine(SpriteRefresh());
+    }
+
+    IEnumerator SpriteRefresh()
+    {
+        while (true)
+        {
+            var item = gameObject.GetComponent<ScrollListItem>();
+            if (null != item)
+            {
+                img.sprite = sprites[item.index % sprites.Length];
+                img.SetNativeSize();
+                yield break;
+            }
+            yield return new WaitForEndOfFrame();
+        }
     }
 }

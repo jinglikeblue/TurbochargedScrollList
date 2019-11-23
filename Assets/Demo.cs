@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class Demo : MonoBehaviour
 {
-    public VerticalScrollViewList<int> list;
+    public VerticalScrollViewList list;
 
     public GameObject scrollView;
 
@@ -16,11 +16,11 @@ public class Demo : MonoBehaviour
 
     private void OnEnable()
     {
-        list = new VerticalScrollViewList<int>(scrollView, itemPrefab3, RenderItem, 10);        
-        list.SetDatas(new int[100]);
+        list = new VerticalScrollViewList(scrollView, RenderItem, 10);        
+        list.SetDatas(new int[100], itemPrefab3);
     }
 
-    private void RenderItem(ScrollListItem item, int data)
+    private void RenderItem(ScrollListItem item, object data)
     {
         var text = item.transform.Find("Text").GetComponent<Text>();
         text.text = string.Format("Index:{0}", item.index);
