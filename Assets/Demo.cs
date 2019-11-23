@@ -17,13 +17,18 @@ public class Demo : MonoBehaviour
     private void OnEnable()
     {
         list = new VerticalScrollViewList<int>(scrollView, itemPrefab3, RenderItem, 10);        
-        list.SetDatas(new int[100]);
+        list.SetDatas(new int[10]);
     }
 
     private void RenderItem(ScrollListItem item, int data)
     {
         var text = item.transform.Find("Text").GetComponent<Text>();
         text.text = string.Format("Index:{0}", item.index);
+    }
+
+    private void LateUpdate()
+    {
+        list.Update();
     }
 
     public void Rebuild()

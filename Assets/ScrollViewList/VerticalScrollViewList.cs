@@ -36,6 +36,21 @@ namespace Jing.ScrollViewList
         /// </summary>
         ItemModel<TData>[] _itemModels;
 
+        /// <summary>
+        /// 当前显示的Item表(key: 数据索引)
+        /// </summary>
+        Dictionary<int, ScrollListItem> _showingItems = new Dictionary<int, ScrollListItem>();
+
+        /// <summary>
+        /// 回收列表项
+        /// </summary>
+        List<ScrollListItem> _recycledItems = new List<ScrollListItem>();
+
+        /// <summary>
+        /// 最后一次显示的Item的缓存
+        /// </summary>
+        Dictionary<int, ScrollListItem> _recycledItemsDic = new Dictionary<int, ScrollListItem>();
+
         public VerticalScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
         {
             itemHeightWithGap = itemSize.y + gap;
@@ -52,7 +67,7 @@ namespace Jing.ScrollViewList
             }
 
             //RebuildContent();
-            MarkDirty(true);
+            MarkDirty(EUpdateType.REBUILD);
         }
 
         public void RebuildContent()
@@ -83,7 +98,7 @@ namespace Jing.ScrollViewList
 
         protected override void OnScroll()
         {
-            MarkDirty(false);
+            MarkDirty(EUpdateType.REFRESH);
         }
 
         protected void Refresh()
@@ -116,18 +131,13 @@ namespace Jing.ScrollViewList
                 }
 
                 startPos = dataBottom + gap;
-            }
-
-            //Debug.Log($"起始索引:{dataIdx}");
-
-            List<ScrollListItem> recycledItems;
-            RecycleItems(out recycledItems);
-
-            int usedRecycleItem = 0;
+            }                                 
+            
             //显示的内容刚好大于这个值即可           
             float contentHeightLimit = viewportHeight;
             float itemY = -startPos;
-            Dictionary<int, ScrollListItem> lastItemMap = new Dictionary<int, ScrollListItem>(_showingItems);
+
+            RecycleItems();
             _showingItems.Clear();
             do
             {
@@ -138,50 +148,7 @@ namespace Jing.ScrollViewList
 
                 var data = _datas[dataIdx];
                 
-                ScrollListItem item;                
-
-                //如果对应的数据对象，已经在 Hierarchy 中了，则直接更新位置即可
-                if (false == lastItemMap.TryGetValue(dataIdx, out item))
-                {
-                    if (usedRecycleItem < recycledItems.Count)
-                    {
-                        item = recycledItems[usedRecycleItem++];                        
-                    }
-                    else
-                    {
-                        var go = GameObject.Instantiate(itemPrefab, content);
-                        item = go.AddComponent<ScrollListItem>();
-                        item.rectTransform.anchorMin = Vector2.up;
-                        item.rectTransform.anchorMax = Vector2.up;
-                        item.rectTransform.pivot = Vector2.up;
-                    }
-
-                    item.height = _itemModels[dataIdx].height;
-                    var name = string.Format("item_{0}", dataIdx);
-                    if (GameObject.Find(item.gameObject.name))
-                    {
-                        Debug.Log("?????");
-                    }
-                    item.gameObject.name = name;
-                    
-
-                    //先渲染，再定位
-                    item.index = dataIdx;
-                    item.data = data;
-                    RenderItem(item, data);
-                }
-                else
-                {
-                    lastItemMap.Remove(dataIdx);
-                }
-
-                if (item.height != _itemModels[dataIdx].height)
-                {
-                    Debug.Log($"item[{dataIdx}]的尺寸改变，重构列表");
-                    _itemModels[dataIdx].height = item.height;
-                    MarkDirty(true);
-                }                
-                
+                ScrollListItem item = CreateItem(data, dataIdx);
                 _showingItems[dataIdx] = item;
 
                 var pos = Vector3.zero;
@@ -194,85 +161,119 @@ namespace Jing.ScrollViewList
 
                 if (-contentRenderStartPos - itemY >= contentHeightLimit)
                 {
-                    //显示区域已满
-
-                    foreach(var unusefulItem in lastItemMap.Values)
-                    {
-                        recycledItems.Add(unusefulItem);
-                    }
                     break;
                 }
             }
             while (true);
 
-            for (int i = usedRecycleItem; i < recycledItems.Count; i++)
+            foreach(var item in _recycledItemsDic.Values)
             {
-                GameObject.Destroy(recycledItems[i].gameObject);
+                GameObject.Destroy(item.gameObject);
+            }
+
+            //for (int i = usedRecycleItem; i < recycledItems.Count; i++)
+            //{
+            //    GameObject.Destroy(recycledItems[i].gameObject);
+            //}
+        }
+
+        enum EUpdateType
+        {
+            NONE,
+            REFRESH, 
+            REBUILD,            
+        }
+        
+        /// <summary>
+        /// 更新方式
+        /// </summary>
+        EUpdateType _updateType;
+
+        void MarkDirty(EUpdateType updateType)
+        {
+            if(_updateType == updateType || _updateType == EUpdateType.REBUILD)
+            {
+                return;
+            }
+
+            _updateType = updateType;   
+        }
+
+        public void Update()
+        {
+            var type = _updateType;
+
+            _updateType = EUpdateType.NONE;
+
+            switch (type)
+            {
+                case EUpdateType.REFRESH:
+                    Refresh();
+                    break;
+                case EUpdateType.REBUILD:
+                    Debug.Log("Rebuild");
+                    RebuildContent();
+                    break;
+                case EUpdateType.NONE:
+                    CheckItemsSize();
+                    break;
+            }            
+        }
+
+        void CheckItemsSize()
+        {
+            foreach(var item in _showingItems.Values)
+            {
+                if (item.height != _itemModels[item.index].height)
+                {
+                    Debug.Log($"item[{item.index}]的尺寸改变");
+                    _itemModels[item.index].height = item.height;
+                    MarkDirty(EUpdateType.REBUILD);
+                }
             }
         }
 
-        Coroutine _updateFlag;
-        bool _isRebuild = false;
-
-        void MarkDirty(bool isRebuild)
+        public void RecycleItems()
         {
-            _isRebuild = _isRebuild | isRebuild;
-
-            if (null == _updateFlag)
+            _recycledItems.Clear();
+            _recycledItemsDic.Clear();
+            for (int i = 0; i < content.childCount; i++)
             {
-                _updateFlag = scrollRect.StartCoroutine(NextFrameWork());
-            }        
+                var item = content.GetChild(i).GetComponent<ScrollListItem>();
+                _recycledItems.Add(item);
+                _recycledItemsDic.Add(item.index, item);
+                //item.gameObject.SetActive(false);
+            }
         }
 
-        IEnumerator NextFrameWork()
+        public ScrollListItem CreateItem(TData data, int index)
         {
-            yield return new WaitForEndOfFrame();            
-            var isRebuild = _isRebuild;
-            _isRebuild = false;
-            _updateFlag = null;
-
-            if (isRebuild)
+            ScrollListItem item;
+            if (_recycledItemsDic.ContainsKey(index))
             {
-                Debug.Log("Rebuild");
-                RebuildContent();
+                item = _recycledItemsDic[index];
+                //item.gameObject.SetActive(true);
+                _recycledItemsDic.Remove(index);
             }
             else
             {
-                Refresh();
+                var go = GameObject.Instantiate(itemPrefab, content);
+                item = go.AddComponent<ScrollListItem>();
+                item.rectTransform.anchorMin = Vector2.up;
+                item.rectTransform.anchorMax = Vector2.up;
+                item.rectTransform.pivot = Vector2.up;
+
+                item.height = _itemModels[index].height;
+                var name = string.Format("item_{0}", index);
+                Debug.Log($"新生成Item: {name}");
+                item.gameObject.name = name;
+
+                item.index = index;
+                item.data = data;
+                RenderItem(item, data);
             }
 
-        }
-
-        /// <summary>
-        /// 当前显示的Item表
-        /// </summary>
-        Dictionary<int, ScrollListItem> _showingItems = new Dictionary<int, ScrollListItem>();
-
-        /// <summary>
-        /// 回收列表项
-        /// </summary>
-        /// <returns></returns>
-        void RecycleItems(out List<ScrollListItem> recycledItems)
-        {
-            recycledItems = new List<ScrollListItem>();            
-
-            float viewportMinY = contentRenderStartPos;
-            float viewportMaxY = contentRenderStartPos + viewportHeight;
-
-            foreach (var item in _showingItems.Values)
-            {                
-                var top = -item.rectTransform.localPosition.y;
-                var bottom = top + item.height;
-                if (bottom >= viewportMinY && top < viewportMaxY)
-                {
-                    //不用刷新数据，仅需要调整位置
-                }
-                else
-                {
-                    //Debug.Log("回收并刷新数据:" + child.name);
-                    recycledItems.Add(item);
-                }
-            }
+            return item;
         }
     }
 }
