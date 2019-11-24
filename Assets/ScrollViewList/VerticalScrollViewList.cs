@@ -154,7 +154,9 @@ namespace Jing.ScrollViewList
             //回收没有使用的item
             foreach(var item in lastShowingItems.Values)
             {
+                //如果不要内存池，则直接Destroy即可
                 //GameObject.Destroy(item.gameObject);
+
                 item.gameObject.SetActive(false);
                 _recycledItems.Add(item);
             }            
@@ -228,24 +230,23 @@ namespace Jing.ScrollViewList
             if (_recycledItems.Count > 0)
             {
                 ScrollListItem tempItem = null;
-
+                //tempItem = _recycledItems[0];
                 int idx = _recycledItems.Count;
-                while(--idx > -1)
+                while (--idx > -1)
                 {
                     tempItem = _recycledItems[idx];
                     if (tempItem.index == dataIdx && tempItem.data.Equals(data))
                     {
                         //以前回收的一个对象，刚好对应的数据一致
-                        item = tempItem;                                     
-                        item.gameObject.SetActive(true);
+                        item = tempItem;
                         _recycledItems.RemoveAt(idx);
+                        item.gameObject.SetActive(true);                        
                         return item;
                     }
                 }
 
                 //没有绝对匹配的，则抽取最后找到的item，之后刷新数据并返回
-                item = tempItem;                
-                item.gameObject.SetActive(true);
+                item = tempItem;                             
                 _recycledItems.Remove(tempItem);                
             }
             else
@@ -255,17 +256,21 @@ namespace Jing.ScrollViewList
                 item.rectTransform.anchorMin = Vector2.up;
                 item.rectTransform.anchorMax = Vector2.up;
                 item.rectTransform.pivot = Vector2.up;
-                Debug.Log($"新生成的 Item GameObject");
-
-                item.height = _itemModels[dataIdx].height;
+                //Debug.Log($"新生成的 Item GameObject");                
             }
             
-            var name = string.Format("item_{0}", dataIdx);
-            //Debug.Log($"刷新Item: {name}");
+            var name = string.Format("item_{0}", dataIdx);           
+            
             item.gameObject.name = name;
-
             item.index = dataIdx;
             item.data = data;
+            item.height = _itemModels[dataIdx].height;
+
+            if (false == item.gameObject.activeInHierarchy)
+            {
+                item.gameObject.SetActive(true);
+            }
+
             RenderItem(item, data);
 
             return item;

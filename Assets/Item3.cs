@@ -33,7 +33,7 @@ public class Item3 : MonoBehaviour
             {                                
                 img.sprite = sprites[item.index % sprites.Length];
                 img.SetNativeSize();
-                Debug.Log($"[{gameObject.name}] 索引值[{item.index}] 纹理(H:{img.sprite.texture.height})[{img.sprite.name}]");
+                //Debug.Log($"[{gameObject.name}] 索引值[{item.index}] 纹理(H:{img.sprite.texture.height})[{img.sprite.name}]");
                 yield break;
             }
             yield return new WaitForEndOfFrame();
