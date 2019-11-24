@@ -24,4 +24,10 @@ public class Demo : MonoBehaviour
         var text = item.transform.Find("Text").GetComponent<Text>();
         text.text = string.Format("Index:{0}", item.index);
     }
+
+    public void Clear()
+    {
+        vList.Clear();
+        hList.Clear();
+    }
 }

@@ -156,9 +156,9 @@ namespace Jing.ScrollViewList
 
         public void SetDatas(TData[] datas)
         {
+            Clear();
             _datas = new TData[datas.Length];            
-            Array.Copy(datas, _datas, _datas.Length);
-            Clear();            
+            Array.Copy(datas, _datas, _datas.Length);                       
             OnSetDatas();
         }
 
@@ -209,13 +209,25 @@ namespace Jing.ScrollViewList
 
         protected abstract void CheckItemsSize();
 
+        /// <summary>
+        /// 清空列表，实际上是将数据清除，并将对象放入对象池
+        /// </summary>
         public void Clear()
         {
+            _recycledItems.Clear();
+            _showingItems.Clear();
+            _itemModels = new ItemModel<TData>[0];
+            _datas = new TData[0];
             int childIdx = content.childCount;
             while (--childIdx > -1)
             {
-                GameObject.Destroy(content.GetChild(childIdx).gameObject);
+                var item = content.GetChild(childIdx).GetComponent<ScrollListItem>();
+                item.gameObject.SetActive(false);
+                _recycledItems.Add(item);
             }
+            MarkDirty(EUpdateType.REBUILD);
+
+            //SetDatas(new TData[0]);
         }
 
         protected void SetContentSize(float x, float y)

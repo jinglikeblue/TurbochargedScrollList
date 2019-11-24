@@ -34,4 +34,9 @@ public class VerticalList : MonoBehaviour
     {
         list.Update();
     }
+
+    public void Clear()
+    {
+        list.Clear();
+    }
 }
