@@ -4,20 +4,20 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ScrollRect))]
-public class VerticalList : MonoBehaviour
+public class HorizontalList : MonoBehaviour
 {
     [Header("item gap")]
     public float gap;
 
     public GameObject itemPrefab;
 
-    VerticalScrollViewList list;
+    HorizontalScrollViewList list;
 
     public event Action<ScrollListItem, object> renderItem;
 
     private void Awake()
     {
-        list = new VerticalScrollViewList(gameObject, itemPrefab, ItemRender, gap);
+        list = new HorizontalScrollViewList(gameObject, itemPrefab, ItemRender, gap);
     }
 
     public void SetDatas<T>(T[] datas)

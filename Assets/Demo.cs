@@ -6,11 +6,17 @@ using UnityEngine.UI;
 public class Demo : MonoBehaviour
 {
     public VerticalList vList;
+    public HorizontalList hList;
 
     private void Start()
     {
+        var datas = new int[500];
+
         vList.renderItem += RenderItem;
-        vList.SetDatas(new int[500]);
+        vList.SetDatas(datas);
+
+        hList.renderItem += RenderItem;
+        hList.SetDatas(datas);
     }
 
     private void RenderItem(ScrollListItem item, object data)
