@@ -133,23 +133,8 @@ namespace Jing.ScrollViewList
                 var data = _datas[dataIdx];
                 
                 ScrollListItem item = CreateItem(data, dataIdx, lastShowingItems);
+                //item.gameObject.name += $"_{_itemModels[dataIdx].height}";
                 _showingItems[dataIdx] = item;
-
-                if (item.height != _itemModels[item.index].height)
-                {
-                    //Debug.Log($"item[{item.index}]的尺寸改变");
-                    _itemModels[item.index].height = item.height;
-                    _showingItems.Clear();
-                    _recycledItems.Clear();
-                    for(int i = 0; i < content.childCount; i++)
-                    {
-                        var go = content.GetChild(i).gameObject;
-                        go.SetActive(false);
-                        _recycledItems.Add(go.GetComponent<ScrollListItem>());
-                    }
-                    RebuildContent();
-                    return;
-                }
 
                 var pos = Vector3.zero;
                 pos.y = itemY;
@@ -169,16 +154,10 @@ namespace Jing.ScrollViewList
             //回收没有使用的item
             foreach(var item in lastShowingItems.Values)
             {
-                if (_recycledItems.Count >= 50)
-                {
-                    GameObject.Destroy(item.gameObject);
-                }
-                else
-                {
-                    item.gameObject.SetActive(false);
-                    _recycledItems.Add(item);
-                }
-            }
+                //GameObject.Destroy(item.gameObject);
+                item.gameObject.SetActive(false);
+                _recycledItems.Add(item);
+            }            
         }
 
         enum EUpdateType
@@ -218,10 +197,9 @@ namespace Jing.ScrollViewList
                     //Debug.Log("Rebuild");
                     RebuildContent();
                     break;
-                case EUpdateType.NONE:
-                    //CheckItemsSize();
-                    break;
-            }            
+            }
+
+            CheckItemsSize();
         }
 
         void CheckItemsSize()
@@ -230,20 +208,20 @@ namespace Jing.ScrollViewList
             {
                 if (item.height != _itemModels[item.index].height)
                 {
-                    //Debug.Log($"item[{item.index}]的尺寸改变");
+                    //Debug.Log($"item[{item.index}]的尺寸改变 {_itemModels[item.index].height} => {item.height}");
                     _itemModels[item.index].height = item.height;
                     MarkDirty(EUpdateType.REBUILD);
                 }
             }
         }
 
-        public ScrollListItem CreateItem(TData data, int index, Dictionary<int, ScrollListItem> lastShowingItems)
+        public ScrollListItem CreateItem(TData data, int dataIdx, Dictionary<int, ScrollListItem> lastShowingItems)
         {
             ScrollListItem item;
-            if (lastShowingItems.ContainsKey(index))
+            if (lastShowingItems.ContainsKey(dataIdx))
             {
-                item = lastShowingItems[index];
-                lastShowingItems.Remove(index);
+                item = lastShowingItems[dataIdx];
+                lastShowingItems.Remove(dataIdx);
                 return item;
             }
 
@@ -255,10 +233,10 @@ namespace Jing.ScrollViewList
                 while(--idx > -1)
                 {
                     tempItem = _recycledItems[idx];
-                    if (tempItem.index == index && tempItem.data.Equals(data))
+                    if (tempItem.index == dataIdx && tempItem.data.Equals(data))
                     {
                         //以前回收的一个对象，刚好对应的数据一致
-                        item = tempItem;
+                        item = tempItem;                                     
                         item.gameObject.SetActive(true);
                         _recycledItems.RemoveAt(idx);
                         return item;
@@ -266,26 +244,27 @@ namespace Jing.ScrollViewList
                 }
 
                 //没有绝对匹配的，则抽取最后找到的item，之后刷新数据并返回
-                item = tempItem;
+                item = tempItem;                
                 item.gameObject.SetActive(true);
-                _recycledItems.Remove(tempItem);                               
+                _recycledItems.Remove(tempItem);                
             }
             else
             {
-                var go = GameObject.Instantiate(_itemModels[index].itemPrefab, content);
+                var go = GameObject.Instantiate(_itemModels[dataIdx].itemPrefab, content);
                 item = go.AddComponent<ScrollListItem>();
                 item.rectTransform.anchorMin = Vector2.up;
                 item.rectTransform.anchorMax = Vector2.up;
                 item.rectTransform.pivot = Vector2.up;
-                Debug.Log($"新生村的Item");
-            }
+                Debug.Log($"新生成的 Item GameObject");
 
-            //item.height = _itemModels[index].height;
-            var name = string.Format("item_{0}", index);
+                item.height = _itemModels[dataIdx].height;
+            }
+            
+            var name = string.Format("item_{0}", dataIdx);
             //Debug.Log($"刷新Item: {name}");
             item.gameObject.name = name;
 
-            item.index = index;
+            item.index = dataIdx;
             item.data = data;
             RenderItem(item, data);
 

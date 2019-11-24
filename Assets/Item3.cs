@@ -19,15 +19,21 @@ public class Item3 : MonoBehaviour
         StartCoroutine(SpriteRefresh());
     }
 
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+    }
+
     IEnumerator SpriteRefresh()
     {
         while (true)
         {
             var item = gameObject.GetComponent<ScrollListItem>();
             if (null != item)
-            {
+            {                                
                 img.sprite = sprites[item.index % sprites.Length];
                 img.SetNativeSize();
+                Debug.Log($"[{gameObject.name}] 索引值[{item.index}] 纹理(H:{img.sprite.texture.height})[{img.sprite.name}]");
                 yield break;
             }
             yield return new WaitForEndOfFrame();
