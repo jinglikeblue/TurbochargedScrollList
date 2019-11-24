@@ -9,7 +9,11 @@ namespace Jing.ScrollViewList
     /// </summary>
     public abstract class BaseScrollViewList<TData>
     {
-        protected class ItemModel<T>
+        /// <summary>
+        /// 列表项的模型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        protected struct ItemModel<T>
         {
             public readonly T data;
 
@@ -17,15 +21,11 @@ namespace Jing.ScrollViewList
 
             public float width;
 
-            public readonly GameObject itemPrefab;
-
-            public ItemModel(T data, GameObject itemPrefab)
+            public ItemModel(T data, Vector2 defaultSize)
             {
                 this.data = data;
-                this.itemPrefab = itemPrefab;
-                var rt = itemPrefab.GetComponent<RectTransform>();
-                height = rt.rect.height;
-                width = rt.rect.width;
+                height = defaultSize.x;
+                width = defaultSize.y;
             }
         }
 
@@ -36,6 +36,10 @@ namespace Jing.ScrollViewList
         public RectTransform content { get; private set; }
 
         public GameObject gameObject { get; private set; }
+
+        public GameObject itemPrefab { get; private set; }
+
+        public Vector2 itemDefaultfSize { get; private set; }
 
         /// <summary>
         /// 视口大小
@@ -53,10 +57,13 @@ namespace Jing.ScrollViewList
 
         OnRenderItem _itemRender;
 
-        public BaseScrollViewList(GameObject scrollView, OnRenderItem itemRender, float gap)
+        public BaseScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap)
         {
             Init(scrollView);            
             this.gap = gap;
+            this.itemPrefab = itemPrefab;
+            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().sizeDelta;
+
             _itemRender = itemRender;
             
             scrollPos = Vector2.up;
@@ -111,15 +118,15 @@ namespace Jing.ScrollViewList
             OnScroll();
         }
 
-        public void SetDatas(TData[] datas, GameObject itemPrefab)
+        public void SetDatas(TData[] datas)
         {
             _datas = new TData[datas.Length];            
             Array.Copy(datas, _datas, _datas.Length);
             Clear();            
-            OnSetDatas(itemPrefab);
+            OnSetDatas();
         }
 
-        protected abstract void OnSetDatas(GameObject itemPrefab);
+        protected abstract void OnSetDatas();
 
         protected abstract void OnScroll();
 

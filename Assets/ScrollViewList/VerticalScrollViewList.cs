@@ -1,22 +1,22 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 namespace Jing.ScrollViewList
 {
     public class VerticalScrollViewList : VerticalScrollViewList<object>
     {
-        public VerticalScrollViewList(GameObject scrollView, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemRender, gap)
+        public VerticalScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
         {
 
         }
 
-        public void SetDatas<TData>(TData[] datas, GameObject itemPrefab)
+        public void SetDatas<TData>(TData[] datas)
         {
             _datas = new object[datas.Length];
             Array.Copy(datas, _datas, _datas.Length);
             Clear();
-            OnSetDatas(itemPrefab);
+            OnSetDatas();
         }
     }
 
@@ -45,20 +45,19 @@ namespace Jing.ScrollViewList
         /// </summary>
         List<ScrollListItem> _recycledItems = new List<ScrollListItem>();
 
-        public VerticalScrollViewList(GameObject scrollView, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemRender, gap)
+        public VerticalScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
         {
 
         }
 
-        protected override void OnSetDatas(GameObject itemPrefab)
+        protected override void OnSetDatas()
         {            
             _itemModels = new ItemModel<TData>[_datas.Length];
             for(int i = 0; i < _datas.Length; i++)
             {
                 //初始化位置，用Prefab的默认数据即可
-                _itemModels[i] = new ItemModel<TData>(_datas[i], itemPrefab);                                
-            }
-            //RebuildContent();
+                _itemModels[i] = new ItemModel<TData>(_datas[i], itemDefaultfSize);                                
+            }            
             MarkDirty(EUpdateType.REBUILD);
         }
 
@@ -251,7 +250,7 @@ namespace Jing.ScrollViewList
             }
             else
             {
-                var go = GameObject.Instantiate(_itemModels[dataIdx].itemPrefab, content);
+                var go = GameObject.Instantiate(itemPrefab, content);
                 item = go.AddComponent<ScrollListItem>();
                 item.rectTransform.anchorMin = Vector2.up;
                 item.rectTransform.anchorMax = Vector2.up;
