@@ -1,35 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Jing.ScrollViewList
+namespace Jing.TurbochargedScrollList
 {
     /// <summary>
     /// 基于UGUI中Scroll View组件的列表工具
     /// </summary>
-    public abstract class BaseScrollViewList<TData>
+    public abstract class BaseScrollList<TData>
     {
-        /// <summary>
-        /// 列表项的模型
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        protected struct ItemModel<T>
-        {
-            public readonly T data;
-
-            public float height;
-
-            public float width;
-
-            public ItemModel(T data, Vector2 defaultSize)
-            {
-                this.data = data;
-                height = defaultSize.x;
-                width = defaultSize.y;
-            }
-        }
-
         /// <summary>
         /// 列表更新方式
         /// </summary>
@@ -62,21 +41,19 @@ namespace Jing.ScrollViewList
         /// </summary>
         public float gap { get; private set; }
 
-        public Vector2 scrollPos { get; protected set; }
+        public Vector2 scrollPos { get; protected set; }        
 
-        protected TData[] _datas;
+        /// <summary>
+        /// 列表项数据
+        /// </summary>
+        protected readonly List<ScrollListItemModel<TData>> _itemModels = new List<ScrollListItemModel<TData>>();
 
         OnRenderItem _itemRender;
 
         /// <summary>
         /// 内容容器滚动位置
         /// </summary>
-        public float contentRenderStartPos { get; protected set; }
-
-        /// <summary>
-        /// 列表项数据
-        /// </summary>
-        protected ItemModel<TData>[] _itemModels;
+        public float contentRenderStartPos { get; protected set; }               
 
         /// <summary>
         /// 当前显示的Item表(key: 数据索引)
@@ -93,7 +70,9 @@ namespace Jing.ScrollViewList
         /// </summary>
         protected EUpdateType _updateType;
 
-        public BaseScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap)
+        ScrollListAdapter _proxy;
+
+        public BaseScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap)
         {
             Init(scrollView);            
             this.gap = gap;
@@ -103,6 +82,13 @@ namespace Jing.ScrollViewList
             _itemRender = itemRender;
             
             scrollPos = Vector2.up;
+
+            _proxy = scrollView.GetComponent<ScrollListAdapter>();
+            if(null == _proxy)
+            {
+                _proxy = scrollView.AddComponent<ScrollListAdapter>();
+            }
+            _proxy.onUpdate += Update;
         }
 
         void Init(GameObject gameObject)
@@ -138,13 +124,12 @@ namespace Jing.ScrollViewList
         /// </summary>
         public TData[] GetDatasCopy()
         {
-            if (null == _datas)
+            TData[] datas = new TData[_itemModels.Count];
+            for(int i = 0; i < _itemModels.Count; i++)
             {
-                return null;
+                datas[i] = _itemModels[i].data;
             }
 
-            TData[] datas = new TData[_datas.Length];
-            _datas.CopyTo(datas, 0);
             return datas;
         }
 
@@ -154,27 +139,29 @@ namespace Jing.ScrollViewList
             MarkDirty(EUpdateType.REFRESH);
         }
 
-        public void AddDatas(TData[] datas)
-        {
-            Clear();
-            _datas = new TData[datas.Length];            
-            Array.Copy(datas, _datas, _datas.Length);                       
-            OnSetDatas();
+        public void AddDatas(IEnumerable<TData> collection)
+        {           
+            foreach(var data in collection)
+            {
+                AddData(data);
+            }
         }        
 
         public void AddData(TData data)
         {
-
+            var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
+            _itemModels.Add(model);
+            MarkDirty(EUpdateType.REBUILD);
         }
 
         public void AddDataAt(TData data, int index)
         {
-
+            MarkDirty(EUpdateType.REBUILD);
         }
 
         public void RemoveAt(int index)
         {
-
+            MarkDirty(EUpdateType.REBUILD);
         }
 
         /// <summary>
@@ -187,17 +174,6 @@ namespace Jing.ScrollViewList
             return false;
         }
 
-        protected void OnSetDatas()
-        {
-            _itemModels = new ItemModel<TData>[_datas.Length];
-            for (int i = 0; i < _datas.Length; i++)
-            {
-                //初始化位置，用Prefab的默认数据即可
-                _itemModels[i] = new ItemModel<TData>(_datas[i], itemDefaultfSize);
-            }
-            MarkDirty(EUpdateType.REBUILD);
-        }
-
         protected void MarkDirty(EUpdateType updateType)
         {
             if (_updateType == updateType || _updateType == EUpdateType.REBUILD)
@@ -208,7 +184,7 @@ namespace Jing.ScrollViewList
             _updateType = updateType;
         }
 
-        public void Update()
+        void Update()
         {
             var type = _updateType;
 
@@ -241,8 +217,7 @@ namespace Jing.ScrollViewList
         {
             _recycledItems.Clear();
             _showingItems.Clear();
-            _itemModels = new ItemModel<TData>[0];
-            _datas = new TData[0];
+            _itemModels.Clear();            
             int childIdx = content.childCount;
             while (--childIdx > -1)
             {

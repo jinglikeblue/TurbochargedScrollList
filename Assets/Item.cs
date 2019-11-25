@@ -1,4 +1,4 @@
-﻿using Jing.ScrollViewList;
+﻿using Jing.TurbochargedScrollList;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;

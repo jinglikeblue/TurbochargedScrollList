@@ -2,29 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Jing.ScrollViewList
+namespace Jing.TurbochargedScrollList
 {
-    public class HorizontalScrollViewList : HorizontalScrollViewList<object>
-    {
-        public HorizontalScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
-        {
-
-        }
-
-        public void SetDatas<TData>(TData[] datas)
-        {
-            _datas = new object[datas.Length];
-            Array.Copy(datas, _datas, _datas.Length);
-            base.AddDatas(_datas);
-        }
-    }
-
     /// <summary>
     /// 垂直滚动列表
     /// </summary>
-    public class HorizontalScrollViewList<TData> : BaseScrollViewList<TData>
+    public class HorizontalScrollList<TData> : BaseScrollList<TData>
     {
-        public HorizontalScrollViewList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
+        public HorizontalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
         {
 
         }
@@ -32,7 +17,7 @@ namespace Jing.ScrollViewList
         protected override void RebuildContent()
         {
             float w = 0;
-            for(int i = 0; i < _itemModels.Length; i++)
+            for(int i = 0; i < _itemModels.Count; i++)
             {
                 w += (_itemModels[i].width + gap);
             }
@@ -48,7 +33,7 @@ namespace Jing.ScrollViewList
             UpdateViewportSize();
 
             //内容容器宽度
-            var contentWidth = content.sizeDelta.x;            
+            var contentWidth = content.rect.width;            
 
             //content的滚动是负数
             contentRenderStartPos = -content.localPosition.x;
@@ -64,7 +49,7 @@ namespace Jing.ScrollViewList
             int dataIdx;
             float startPos = 0;
 
-            for(dataIdx = 0; dataIdx < _itemModels.Length; dataIdx++)
+            for(dataIdx = 0; dataIdx < _itemModels.Count; dataIdx++)
             {
                 var dataRight = startPos + _itemModels[dataIdx].width;
                 if (dataRight >= contentRenderStartPos)
@@ -86,16 +71,12 @@ namespace Jing.ScrollViewList
             Dictionary<int, ScrollListItem> lastShowingItems = new Dictionary<int, ScrollListItem>(_showingItems);
 
             _showingItems.Clear();
-            do
-            {
-                if (dataIdx >= _datas.Length)
-                {
-                    break;
-                }
 
-                var data = _datas[dataIdx];
-                
-                ScrollListItem item = CreateItem(data, dataIdx, lastShowingItems);
+            while(dataIdx < _itemModels.Count)
+            {
+                var model = _itemModels[dataIdx];
+
+                ScrollListItem item = CreateItem(model.data, dataIdx, lastShowingItems);
                 //item.gameObject.name += $"_{_itemModels[dataIdx].height}";
                 _showingItems[dataIdx] = item;
 
@@ -112,7 +93,6 @@ namespace Jing.ScrollViewList
                     break;
                 }
             }
-            while (true);
 
             //回收没有使用的item
             foreach(var item in lastShowingItems.Values)

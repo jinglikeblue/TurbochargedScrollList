@@ -1,23 +1,30 @@
-﻿using Jing.ScrollViewList;
+﻿
+using Jing.TurbochargedScrollList;
 using UnityEngine;
 using UnityEngine.UI;
+using Zero;
 
 public class Demo : MonoBehaviour
 {
-    public VerticalList vList;
-    public HorizontalList hList;
+    public VerticalScrollListComponent vList;
+    public HorizontalScrollListComponent hList;
 
     public InputField inputCount;
 
     private void Start()
     {
+        //GUIDeviceInfo.Show();
+#if !UNITY_EDITOR
+        Application.targetFrameRate = 60;
+#endif
+
         var datas = new int[500];
 
         vList.renderItem += RenderItem;
-        vList.SetDatas(datas);
+        vList.AddDatas(datas);
 
         hList.renderItem += RenderItem;
-        hList.SetDatas(datas);
+        hList.AddDatas(datas);
     }
 
     private void RenderItem(ScrollListItem item, object data)
