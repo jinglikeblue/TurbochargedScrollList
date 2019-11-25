@@ -1,5 +1,4 @@
-﻿using System;
-using Jing.ScrollViewList;
+﻿using Jing.ScrollViewList;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +6,8 @@ public class Demo : MonoBehaviour
 {
     public VerticalList vList;
     public HorizontalList hList;
+
+    public InputField inputCount;
 
     private void Start()
     {
@@ -29,5 +30,15 @@ public class Demo : MonoBehaviour
     {
         vList.Clear();
         hList.Clear();
+    }
+
+    public void Add()
+    {
+        var count = int.Parse(inputCount.text);
+        for(int i = 0; i < count; i++)
+        {
+            vList.Add(0);
+            hList.Add(0);
+        }
     }
 }

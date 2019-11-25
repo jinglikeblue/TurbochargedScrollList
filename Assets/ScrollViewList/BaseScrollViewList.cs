@@ -154,12 +154,37 @@ namespace Jing.ScrollViewList
             MarkDirty(EUpdateType.REFRESH);
         }
 
-        public void SetDatas(TData[] datas)
+        public void AddDatas(TData[] datas)
         {
             Clear();
             _datas = new TData[datas.Length];            
             Array.Copy(datas, _datas, _datas.Length);                       
             OnSetDatas();
+        }        
+
+        public void AddData(TData data)
+        {
+
+        }
+
+        public void AddDataAt(TData data, int index)
+        {
+
+        }
+
+        public void RemoveAt(int index)
+        {
+
+        }
+
+        /// <summary>
+        /// 移除列表找到的第一个和data数据相同的项
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public bool Remove(TData data)
+        {
+            return false;
         }
 
         protected void OnSetDatas()

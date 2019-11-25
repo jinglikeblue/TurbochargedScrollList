@@ -15,7 +15,7 @@ namespace Jing.ScrollViewList
         {
             _datas = new object[datas.Length];
             Array.Copy(datas, _datas, _datas.Length);
-            base.SetDatas(_datas);
+            base.AddDatas(_datas);
         }
     }
 

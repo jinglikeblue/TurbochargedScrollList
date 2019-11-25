@@ -38,5 +38,10 @@ public class VerticalList : MonoBehaviour
     public void Clear()
     {
         list.Clear();
+    }    
+
+    public void Add(object data)
+    {
+
     }
 }

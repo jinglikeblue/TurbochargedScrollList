@@ -39,4 +39,9 @@ public class HorizontalList : MonoBehaviour
     {
         list.Clear();
     }
+
+    public void Add(object data)
+    {
+
+    }
 }
