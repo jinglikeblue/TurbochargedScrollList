@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Jing.TurbochargedScrollList
 {
     /// <summary>
-    /// 垂直滚动列表
+    /// 水平滚动列表
     /// </summary>
     public class HorizontalScrollList<TData> : BaseScrollList<TData>
     {
