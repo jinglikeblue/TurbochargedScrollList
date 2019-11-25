@@ -68,7 +68,7 @@ namespace Jing.TurbochargedScrollList
             /// <summary>
             /// 最后一次显示的Item的缓存
             /// </summary>
-            Dictionary<int, ScrollListItem> lastShowingItems = new Dictionary<int, ScrollListItem>(_showingItems);
+            Dictionary<ScrollListItemModel<TData>, ScrollListItem> lastShowingItems = new Dictionary<ScrollListItemModel<TData>, ScrollListItem>(_showingItems);
 
             _showingItems.Clear();
 
@@ -76,9 +76,10 @@ namespace Jing.TurbochargedScrollList
             {
                 var model = _itemModels[dataIdx];
 
-                ScrollListItem item = CreateItem(model.data, dataIdx, lastShowingItems);
-                //item.gameObject.name += $"_{_itemModels[dataIdx].height}";
-                _showingItems[dataIdx] = item;
+                ScrollListItem item = CreateItem(model, dataIdx, lastShowingItems);
+                //item.gameObject.name += $"_{_itemModels[dataIdx].height}";                
+                item.index = dataIdx;
+                _showingItems[model] = item;
 
                 var pos = Vector3.zero;
                 pos.x = itemX;

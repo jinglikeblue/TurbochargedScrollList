@@ -58,7 +58,7 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 当前显示的Item表(key: 数据索引)
         /// </summary>
-        protected Dictionary<int, ScrollListItem> _showingItems = new Dictionary<int, ScrollListItem>();
+        protected Dictionary<ScrollListItemModel<TData>, ScrollListItem> _showingItems = new Dictionary<ScrollListItemModel<TData>, ScrollListItem>();
 
         /// <summary>
         /// 回收列表项
@@ -193,13 +193,13 @@ namespace Jing.TurbochargedScrollList
         /// <param name="dataIdx"></param>
         /// <param name="lastShowingItems"></param>
         /// <returns></returns>
-        protected ScrollListItem CreateItem(TData data, int dataIdx, Dictionary<int, ScrollListItem> lastShowingItems)
+        protected ScrollListItem CreateItem(ScrollListItemModel<TData> model, int dataIdx, Dictionary<ScrollListItemModel<TData>, ScrollListItem> lastShowingItems)
         {
             ScrollListItem item;
-            if (lastShowingItems.ContainsKey(dataIdx))
+            if (lastShowingItems.ContainsKey(model))
             {
-                item = lastShowingItems[dataIdx];
-                lastShowingItems.Remove(dataIdx);
+                item = lastShowingItems[model];
+                lastShowingItems.Remove(model);
                 return item;
             }
 
@@ -211,7 +211,7 @@ namespace Jing.TurbochargedScrollList
                 while (--idx > -1)
                 {
                     tempItem = _recycledItems[idx];
-                    if (tempItem.index == dataIdx && tempItem.data.Equals(data))
+                    if (tempItem.index == dataIdx && tempItem.data.Equals(model.data))
                     {
                         //以前回收的一个对象，刚好对应的数据一致
                         item = tempItem;
@@ -239,7 +239,7 @@ namespace Jing.TurbochargedScrollList
 
             item.gameObject.name = name;
             item.index = dataIdx;
-            item.data = data;
+            item.data = model.data;
             item.width = _itemModels[dataIdx].width;
             item.height = _itemModels[dataIdx].height;
 
@@ -248,7 +248,7 @@ namespace Jing.TurbochargedScrollList
                 item.gameObject.SetActive(true);
             }
 
-            RenderItem(item, data);
+            RenderItem(item, model.data);
 
             return item;
         }
