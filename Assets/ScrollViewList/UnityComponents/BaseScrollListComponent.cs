@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +7,7 @@ namespace Jing.TurbochargedScrollList
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ScrollRect))]
-    public abstract class BaseScrollListComponent : MonoBehaviour
+    public abstract class BaseScrollListComponent : MonoBehaviour,IScrollList<object>
     {
         public GameObject itemPrefab;
 
@@ -24,19 +25,39 @@ namespace Jing.TurbochargedScrollList
             list.Clear();
         }
 
-        public void AddDatas<T>(T[] datas)
+        public void AddRange<T>(IEnumerable<T> collection)
         {
-            object[] objs = new object[datas.Length];
-            for (int i = 0; i < objs.Length; i++)
+            List<object> list = new List<object>();
+            foreach(var temp in collection)
             {
-                objs[i] = datas[i];
+                list.Add(temp);
             }
-            list.AddDatas(objs);
+            AddRange(list);
         }
 
         public void Add(object data)
         {
-            list.AddData(data);
+            list.Add(data);
+        }
+
+        public void AddRange(IEnumerable<object> collection)
+        {            
+            list.AddRange(collection);
+        }
+
+        public void Insert(int index, object data)
+        {
+            list.Insert(index, data);
+        }
+
+        public void RemoveAt(int index)
+        {
+            list.RemoveAt(index);
+        }
+
+        public bool Remove(object data)
+        {
+            return list.Remove(data);
         }
     }
 

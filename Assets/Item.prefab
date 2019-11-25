@@ -185,12 +185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   img: {fileID: 1707818272961277137}
   sprites:
-  - {fileID: 21300000, guid: 4a870f519d0613446bc697f3d0911909, type: 3}
-  - {fileID: 21300000, guid: 499a060232bb9d94cad585019b6bc5c2, type: 3}
-  - {fileID: 21300000, guid: 0bd58ec97082143449a85b902b63f3be, type: 3}
-  - {fileID: 21300000, guid: b0b7009b6567f8f4a87feffcfe1a191b, type: 3}
   - {fileID: 21300000, guid: 343eac8c1c6ef7040bfd5a57ab7620de, type: 3}
   - {fileID: 21300000, guid: 2c2b14956f29a9f4a826c2bc6e432eaa, type: 3}
-  - {fileID: 21300000, guid: 3711d59d4130ed945ac6262162b79399, type: 3}
   - {fileID: 21300000, guid: 4a870f519d0613446bc697f3d0911909, type: 3}
   - {fileID: 21300000, guid: 3094f315a0586134b804dcaf355d7452, type: 3}

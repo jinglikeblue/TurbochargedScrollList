@@ -7,7 +7,7 @@ namespace Jing.TurbochargedScrollList
     /// <summary>
     /// 基于UGUI中Scroll View组件的列表工具
     /// </summary>
-    public abstract class BaseScrollList<TData>
+    public abstract class BaseScrollList<TData>: IScrollList<TData>
     {
         /// <summary>
         /// 列表更新方式
@@ -139,41 +139,6 @@ namespace Jing.TurbochargedScrollList
             MarkDirty(EUpdateType.REFRESH);
         }
 
-        public void AddDatas(IEnumerable<TData> collection)
-        {           
-            foreach(var data in collection)
-            {
-                AddData(data);
-            }
-        }        
-
-        public void AddData(TData data)
-        {
-            var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
-            _itemModels.Add(model);
-            MarkDirty(EUpdateType.REBUILD);
-        }
-
-        public void AddDataAt(TData data, int index)
-        {
-            MarkDirty(EUpdateType.REBUILD);
-        }
-
-        public void RemoveAt(int index)
-        {
-            MarkDirty(EUpdateType.REBUILD);
-        }
-
-        /// <summary>
-        /// 移除列表找到的第一个和data数据相同的项
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public bool Remove(TData data)
-        {
-            return false;
-        }
-
         protected void MarkDirty(EUpdateType updateType)
         {
             if (_updateType == updateType || _updateType == EUpdateType.REBUILD)
@@ -209,26 +174,6 @@ namespace Jing.TurbochargedScrollList
         protected abstract void RebuildContent();
 
         protected abstract void CheckItemsSize();
-
-        /// <summary>
-        /// 清空列表，实际上是将数据清除，并将对象放入对象池
-        /// </summary>
-        public void Clear()
-        {
-            _recycledItems.Clear();
-            _showingItems.Clear();
-            _itemModels.Clear();            
-            int childIdx = content.childCount;
-            while (--childIdx > -1)
-            {
-                var item = content.GetChild(childIdx).GetComponent<ScrollListItem>();
-                item.gameObject.SetActive(false);
-                _recycledItems.Add(item);
-            }
-            MarkDirty(EUpdateType.REBUILD);
-
-            //SetDatas(new TData[0]);
-        }
 
         protected void SetContentSize(float x, float y)
         {
@@ -307,5 +252,77 @@ namespace Jing.TurbochargedScrollList
 
             return item;
         }
+
+
+        #region 数据操作
+        public void AddRange(IEnumerable<TData> collection)
+        {                              
+            foreach (var data in collection)
+            {
+                Add(data);
+            }
+        }
+
+        public void Add(TData data)
+        {
+            var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
+            _itemModels.Add(model);
+            MarkDirty(EUpdateType.REBUILD);
+        }
+
+        public void Insert(int index, TData data)
+        {
+            var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
+            _itemModels.Insert(index, model);
+            MarkDirty(EUpdateType.REBUILD);
+        }
+
+        /// <summary>
+        /// 移除列表找到的第一个和data数据相同的项
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public bool Remove(TData data)
+        {
+            for(int i = 0;i < _itemModels.Count; i++)
+            {
+                if(_itemModels[i].data.Equals(data))
+                {
+                    RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 移除指定索引位置的数据
+        /// </summary>
+        /// <param name="index"></param>
+        public void RemoveAt(int index)
+        {
+            _itemModels.RemoveAt(index);
+            MarkDirty(EUpdateType.REBUILD);
+        }
+
+        /// <summary>
+        /// 清空列表，实际上是将数据清除，并将对象放入对象池
+        /// </summary>
+        public void Clear()
+        {
+            _recycledItems.Clear();
+            _showingItems.Clear();
+            _itemModels.Clear();
+            int childIdx = content.childCount;
+            while (--childIdx > -1)
+            {
+                var item = content.GetChild(childIdx).GetComponent<ScrollListItem>();
+                item.gameObject.SetActive(false);
+                _recycledItems.Add(item);
+            }
+            MarkDirty(EUpdateType.REBUILD);            
+        }
+        #endregion
     }
 }
