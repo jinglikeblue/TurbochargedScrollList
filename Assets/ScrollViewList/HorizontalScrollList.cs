@@ -14,7 +14,7 @@ namespace Jing.TurbochargedScrollList
 
         }
 
-        protected override void ResizeContent(UpdateConfig updateConfig)
+        protected override void ResizeContent(UpdateData updateConfig)
         {
             float w = 0;
             for (int i = 0; i < _itemModels.Count; i++)
@@ -26,13 +26,23 @@ namespace Jing.TurbochargedScrollList
             SetContentSize(w, viewportSize.y);
         }
 
-        protected override void Refresh(UpdateConfig updateConfig)
+        protected override void Refresh(UpdateData updateConfig, out int lastStartIndex)
         {
             //内容容器宽度
-            var contentWidth = content.rect.width;            
+            var contentWidth = content.rect.width;
+
+            if (updateConfig.keepPaddingType == EKeepPaddingType.END)
+            {
+                var targetRenderStartPos = (contentWidth - updateConfig.tempLastContentRect.width) + contentRenderStartPos;
+                var temp = content.localPosition;
+                temp.x = -targetRenderStartPos;
+                content.localPosition = temp;                
+            }
 
             //content的滚动是负数
             contentRenderStartPos = -content.localPosition.x;
+            
+
             if(contentRenderStartPos < 0)
             {
                 contentRenderStartPos = 0;
@@ -55,8 +65,8 @@ namespace Jing.TurbochargedScrollList
                 }
 
                 startPos = dataRight + gap;
-            }                                 
-            
+            }
+            lastStartIndex = dataIdx;
             //显示的内容刚好大于这个值即可           
             float contentWidthLimit = viewportSize.x;
             float itemX = startPos;

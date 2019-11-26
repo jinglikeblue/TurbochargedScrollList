@@ -24,27 +24,19 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public Vector2 movedDistance { get; private set; }
 
-        public bool IsStatic
-        {
-            get
-            {
-                return movedDistance.Equals(Vector2.zero);
-            }
-        }
-
-        public bool IsMove2Start
-        {
-            get
-            {
-                return IsMove2Left || IsMove2Top;
-            }
-        }
-
-        public bool IsMove2End
+        public bool IsScroll2Start
         {
             get
             {
                 return IsMove2Right || IsMove2Bottom;
+            }
+        }
+
+        public bool IsScroll2End
+        {
+            get
+            {
+                return IsMove2Left || IsMove2Top;
             }
         }
 
@@ -89,6 +81,10 @@ namespace Jing.TurbochargedScrollList
 
         public void SetPosition(Vector2 position)
         {
+            if (currentPosition.Equals(position))
+            {
+                return;
+            }
             lastPosition = currentPosition;
             currentPosition = position;
             movedDistance = currentPosition - lastPosition;
