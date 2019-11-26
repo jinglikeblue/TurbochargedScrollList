@@ -210,8 +210,7 @@ namespace Jing.TurbochargedScrollList
             }                        
 
             if (updateConfig.isResizeContent)
-            {
-                Debug.Log("重建");
+            {                
                 updateConfig.tempLastContentRect = content.rect;
                 ResizeContent(updateConfig);                
             }
@@ -235,7 +234,7 @@ namespace Jing.TurbochargedScrollList
             {
                 if (AdjustmentItemSize(item))
                 {
-                    MarkDirty(true); Debug.Log("重建原因:CheckItemsSize");
+                    MarkDirty(true);
                 }
             }
         }
@@ -370,9 +369,7 @@ namespace Jing.TurbochargedScrollList
             else
             {
                 MarkDirty(true);
-            }
-
-            Debug.Log("重建原因:Insert");
+            }            
         }
 
         /// <summary>
