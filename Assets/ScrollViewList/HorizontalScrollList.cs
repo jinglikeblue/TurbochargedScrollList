@@ -14,24 +14,20 @@ namespace Jing.TurbochargedScrollList
 
         }
 
-        protected override void RebuildContent()
+        protected override void ResizeContent()
         {
             float w = 0;
-            for(int i = 0; i < _itemModels.Count; i++)
+            for (int i = 0; i < _itemModels.Count; i++)
             {
                 w += (_itemModels[i].width + gap);
             }
             w -= gap;
 
             SetContentSize(w, viewportSize.y);
-
-            Refresh();
         }
 
         protected override void Refresh()
         {
-            UpdateViewportSize();
-
             //内容容器宽度
             var contentWidth = content.rect.width;            
 
@@ -106,17 +102,15 @@ namespace Jing.TurbochargedScrollList
             }            
         }
 
-        protected override void CheckItemsSize()
+        protected override bool AdjustmentItemSize(ScrollListItem item)
         {
-            foreach(var item in _showingItems.Values)
+            if (item.width != _itemModels[item.index].width)
             {
-                if (item.width != _itemModels[item.index].width)
-                {
-                    //Debug.Log($"item[{item.index}]的尺寸改变 {_itemModels[item.index].height} => {item.height}");
-                    _itemModels[item.index].width = item.width;
-                    MarkDirty(EUpdateType.REBUILD);
-                }
+                //Debug.Log($"item[{item.index}]的尺寸改变 {_itemModels[item.index].width} => {item.width}");
+                _itemModels[item.index].width = item.width;
+                return true;
             }
+            return false;
         }
     }
 }

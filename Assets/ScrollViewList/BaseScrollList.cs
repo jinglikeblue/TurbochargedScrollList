@@ -10,14 +10,41 @@ namespace Jing.TurbochargedScrollList
     public abstract class BaseScrollList<TData>: IScrollList<TData>
     {
         /// <summary>
-        /// 列表更新方式
+        /// 更新配置
         /// </summary>
-        protected enum EUpdateType
+        protected struct UpdateConfig
         {
-            NONE,
-            REFRESH,
-            REBUILD,
+            /// <summary>
+            /// 是否重新计算Content大小
+            /// </summary>
+            public bool isResizeContent;
+
+            /// <summary>
+            /// 是否刷新
+            /// </summary>
+            public bool isRefresh;
+
+            /// <summary>
+            /// 最后开始的数据索引
+            /// </summary>
+            public int lastStartIndex;
+
+            /// <summary>
+            /// 最后渲染开始的位置
+            /// </summary>
+            public float lastRenderStartPos;
+
+            public void Reset()
+            {
+                isResizeContent = false;
+                isRefresh = false;
+                lastStartIndex = 0;
+                lastRenderStartPos = 0;
+            }
         }
+
+        protected UpdateConfig _updateConfig;
+
 
         public delegate void OnRenderItem(ScrollListItem item, TData data);
 
@@ -58,17 +85,12 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 当前显示的Item表(key: 数据索引)
         /// </summary>
-        protected Dictionary<ScrollListItemModel<TData>, ScrollListItem> _showingItems = new Dictionary<ScrollListItemModel<TData>, ScrollListItem>();
+        protected readonly Dictionary<ScrollListItemModel<TData>, ScrollListItem> _showingItems = new Dictionary<ScrollListItemModel<TData>, ScrollListItem>();
 
         /// <summary>
         /// 回收列表项
         /// </summary>
-        protected List<ScrollListItem> _recycledItems = new List<ScrollListItem>();
-
-        /// <summary>
-        /// 更新方式
-        /// </summary>
-        protected EUpdateType _updateType;
+        protected readonly List<ScrollListItem> _recycledItems = new List<ScrollListItem>();
 
         ScrollListAdapter _proxy;
 
@@ -88,7 +110,7 @@ namespace Jing.TurbochargedScrollList
             {
                 _proxy = scrollView.AddComponent<ScrollListAdapter>();
             }
-            _proxy.onUpdate += Update;
+            _proxy.onUpdate += Update;            
         }
 
         void Init(GameObject gameObject)
@@ -106,12 +128,10 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         protected void UpdateViewportSize()
         {
-            viewportSize = scrollRect.viewport.rect.size;
-            //viewportHeight = scrollRect.viewport.rect.height;
-            if (0 == viewportSize.x && 0 == viewportSize.y)
+            if (false == viewportSize.Equals(scrollRect.viewport.rect.size))
             {
-                viewportSize = scrollRect.GetComponent<RectTransform>().rect.size;
-            }            
+                viewportSize = scrollRect.viewport.rect.size;
+            }                  
         }
 
         protected void RenderItem(ScrollListItem item, TData data)
@@ -136,44 +156,73 @@ namespace Jing.TurbochargedScrollList
         private void OnScroll(Vector2 v)
         {
             scrollPos = v;
-            MarkDirty(EUpdateType.REFRESH);
+            MarkDirty();
         }
 
-        protected void MarkDirty(EUpdateType updateType)
+        protected void MarkDirty(bool isResizeContent = false)
         {
-            if (_updateType == updateType || _updateType == EUpdateType.REBUILD)
-            {
-                return;
-            }
-
-            _updateType = updateType;
+            _updateConfig.isRefresh = true;
+            _updateConfig.isResizeContent |= isResizeContent;           
         }
 
         void Update()
         {
-            var type = _updateType;
+            var updateConfig = _updateConfig;
+            _updateConfig.Reset();
 
-            _updateType = EUpdateType.NONE;
+            UpdateViewportSize();
 
-            switch (type)
+            if (viewportSize.Equals(Vector2.zero))
             {
-                case EUpdateType.REFRESH:
-                    Refresh();
-                    break;
-                case EUpdateType.REBUILD:
-                    //Debug.Log("Rebuild");
-                    RebuildContent();
-                    break;
+                //还没初始化完成，刷新延迟
+                //Debug.Log("还没初始化完成，刷新延迟");
+                MarkDirty(true);
+                return;
             }
 
-            CheckItemsSize();
+            if (updateConfig.isResizeContent)
+            {
+                ResizeContent();                
+            }
+
+            if (updateConfig.isRefresh)
+            {                
+                Refresh();                
+            }
+
+            CheckItemsSize();            
         }
 
-        protected abstract void Refresh();
+        /// <summary>
+        /// 检查每一个现实中的item的大小
+        /// </summary>
+        protected void CheckItemsSize()
+        {
+            foreach (var item in _showingItems.Values)
+            {
+                if (AdjustmentItemSize(item))
+                {
+                    MarkDirty(true);
+                }
+            }
+        }
 
-        protected abstract void RebuildContent();
+        /// <summary>
+        /// 重新计算content大小
+        /// </summary>
+        protected abstract void ResizeContent();
 
-        protected abstract void CheckItemsSize();
+        /// <summary>
+        /// 刷新列表
+        /// </summary>
+        protected abstract void Refresh();      
+
+        /// <summary>
+        /// 检测并校正item的大小，如果进行了校正，返回true
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        protected abstract bool AdjustmentItemSize(ScrollListItem item);
 
         protected void SetContentSize(float x, float y)
         {
@@ -267,14 +316,14 @@ namespace Jing.TurbochargedScrollList
         {
             var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
             _itemModels.Add(model);
-            MarkDirty(EUpdateType.REBUILD);
+            MarkDirty(true);
         }
 
         public void Insert(int index, TData data)
         {
             var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
             _itemModels.Insert(index, model);
-            MarkDirty(EUpdateType.REBUILD);
+            MarkDirty(true);
         }
 
         /// <summary>
@@ -303,7 +352,7 @@ namespace Jing.TurbochargedScrollList
         public void RemoveAt(int index)
         {
             _itemModels.RemoveAt(index);
-            MarkDirty(EUpdateType.REBUILD);
+            MarkDirty(true);
         }
 
         /// <summary>
@@ -311,6 +360,7 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public void Clear()
         {
+            _updateConfig = new UpdateConfig();
             _recycledItems.Clear();
             _showingItems.Clear();
             _itemModels.Clear();
@@ -321,7 +371,7 @@ namespace Jing.TurbochargedScrollList
                 item.gameObject.SetActive(false);
                 _recycledItems.Add(item);
             }
-            MarkDirty(EUpdateType.REBUILD);            
+            MarkDirty(true);            
         }
         #endregion
     }

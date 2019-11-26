@@ -14,24 +14,20 @@ namespace Jing.TurbochargedScrollList
 
         }
 
-        protected override void RebuildContent()
+        protected override void ResizeContent()
         {
             float h = 0;
-            for(int i = 0; i < _itemModels.Count; i++)
+            for (int i = 0; i < _itemModels.Count; i++)
             {
                 h += (_itemModels[i].height + gap);
             }
             h -= gap;
 
             SetContentSize(viewportSize.x, h);
-
-            Refresh();
         }
 
         protected override void Refresh()
-        {
-            UpdateViewportSize();
-
+        {            
             //内容容器高度
             var contentHeight = content.rect.height;            
 
@@ -104,18 +100,16 @@ namespace Jing.TurbochargedScrollList
                 _recycledItems.Add(item);
             }            
         }
-
-        protected override void CheckItemsSize()
+        
+        protected override bool AdjustmentItemSize(ScrollListItem item)
         {
-            foreach(var item in _showingItems.Values)
+            if (item.height != _itemModels[item.index].height)
             {
-                if (item.height != _itemModels[item.index].height)
-                {
-                    //Debug.Log($"item[{item.index}]的尺寸改变 {_itemModels[item.index].height} => {item.height}");
-                    _itemModels[item.index].height = item.height;
-                    MarkDirty(EUpdateType.REBUILD);
-                }
-            }            
-        }        
+                //Debug.Log($"item[{item.index}]的尺寸改变 {_itemModels[item.index].height} => {item.height}");
+                _itemModels[item.index].height = item.height;
+                return true;
+            }
+            return false;
+        }
     }
 }
