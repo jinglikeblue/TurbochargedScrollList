@@ -211,12 +211,13 @@ namespace Jing.TurbochargedScrollList
 
             if (updateConfig.isResizeContent)
             {
+                Debug.Log("重建");
                 updateConfig.tempLastContentRect = content.rect;
                 ResizeContent(updateConfig);                
             }
 
             if (updateConfig.isRefresh)
-            {
+            {                
                 int lastStartIndex;
                 Refresh(updateConfig, out lastStartIndex);
                 this.lastStartIndex = lastStartIndex;
@@ -234,7 +235,7 @@ namespace Jing.TurbochargedScrollList
             {
                 if (AdjustmentItemSize(item))
                 {
-                    MarkDirty(true);
+                    MarkDirty(true); Debug.Log("重建原因:CheckItemsSize");
                 }
             }
         }
@@ -363,13 +364,15 @@ namespace Jing.TurbochargedScrollList
             var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
             _itemModels.Insert(index, model);
             if (index <= lastStartIndex)
-            {
+            {                
                 MarkDirty(true, EKeepPaddingType.END);
             }
             else
             {
                 MarkDirty(true);
             }
+
+            Debug.Log("重建原因:Insert");
         }
 
         /// <summary>

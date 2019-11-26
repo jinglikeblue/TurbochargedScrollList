@@ -36,8 +36,7 @@ namespace Jing.TurbochargedScrollList
                 var targetRenderStartPos = (contentHeight - updateConfig.tempLastContentRect.height) + contentRenderStartPos;
                 var temp = content.localPosition;
                 temp.y = targetRenderStartPos;
-                content.localPosition = temp;
-                Debug.Log(targetRenderStartPos);
+                content.localPosition = temp;                
             }
 
             contentRenderStartPos = content.localPosition.y;
