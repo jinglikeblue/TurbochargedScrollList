@@ -73,7 +73,7 @@ namespace Jing.TurbochargedScrollList
 
                 ScrollListItem item = CreateItem(model, dataIdx, lastShowingItems);
                 //item.gameObject.name += $"_{_itemModels[dataIdx].height}";
-                item.index = dataIdx;
+                
                 _showingItems[model] = item;
 
                 var pos = Vector3.zero;

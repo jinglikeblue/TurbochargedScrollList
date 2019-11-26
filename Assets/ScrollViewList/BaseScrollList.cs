@@ -25,21 +25,31 @@ namespace Jing.TurbochargedScrollList
             public bool isRefresh;
 
             /// <summary>
-            /// 最后开始的数据索引
+            /// 刷新时，是否保持当前显示列表的显示项位置。如果是，则对应的调整content的滚动位置。
+            /// </summary>
+            public bool isHoldShowingItemPosition;
+
+            /// <summary>
+            /// 上一次刷新开始的数据索引
             /// </summary>
             public int lastStartIndex;
 
             /// <summary>
+            /// 上一次刷新开始的数据偏移位置
+            /// </summary>
+            public Vector2 lastStartIndexPositionOff;
+
+            /// <summary>
             /// 最后渲染开始的位置
             /// </summary>
-            public float lastRenderStartPos;
+            public float lastContentRenderStartPos;
 
             public void Reset()
             {
                 isResizeContent = false;
                 isRefresh = false;
                 lastStartIndex = 0;
-                lastRenderStartPos = 0;
+                lastContentRenderStartPos = 0;
             }
         }
 
@@ -159,10 +169,15 @@ namespace Jing.TurbochargedScrollList
             MarkDirty();
         }
 
-        protected void MarkDirty(bool isResizeContent = false)
+        /// <summary>
+        /// 标记列表有变化，将在下一次更新时进行刷新
+        /// </summary>
+        /// <param name="isResizeContent"></param>
+        protected void MarkDirty(bool isResizeContent = false, bool isHoldShowingItemPosition = false)
         {
             _updateConfig.isRefresh = true;
-            _updateConfig.isResizeContent |= isResizeContent;           
+            _updateConfig.isResizeContent |= isResizeContent;
+            _updateConfig.isHoldShowingItemPosition |= isHoldShowingItemPosition;
         }
 
         void Update()
@@ -248,56 +263,63 @@ namespace Jing.TurbochargedScrollList
             if (lastShowingItems.ContainsKey(model))
             {
                 item = lastShowingItems[model];
-                lastShowingItems.Remove(model);
-                return item;
-            }
-
-            if (_recycledItems.Count > 0)
-            {
-                ScrollListItem tempItem = null;
-                //tempItem = _recycledItems[0];
-                int idx = _recycledItems.Count;
-                while (--idx > -1)
-                {
-                    tempItem = _recycledItems[idx];
-                    if (tempItem.index == dataIdx && tempItem.data.Equals(model.data))
-                    {
-                        //以前回收的一个对象，刚好对应的数据一致
-                        item = tempItem;
-                        _recycledItems.RemoveAt(idx);
-                        item.gameObject.SetActive(true);
-                        return item;
-                    }
-                }
-
-                //没有绝对匹配的，则抽取最后找到的item，之后刷新数据并返回
-                item = tempItem;
-                _recycledItems.Remove(tempItem);
+                lastShowingItems.Remove(model);                
             }
             else
             {
-                var go = GameObject.Instantiate(itemPrefab, content);
-                item = go.AddComponent<ScrollListItem>();
-                item.rectTransform.anchorMin = Vector2.up;
-                item.rectTransform.anchorMax = Vector2.up;
-                item.rectTransform.pivot = Vector2.up;
-                //Debug.Log($"新生成的 Item GameObject");                
+                if (_recycledItems.Count > 0)
+                {
+                    ScrollListItem tempItem = null;
+                    //tempItem = _recycledItems[0];
+                    int idx = _recycledItems.Count;
+                    while (--idx > -1)
+                    {
+                        tempItem = _recycledItems[idx];
+                        if (tempItem.index == dataIdx && tempItem.data.Equals(model.data))
+                        {
+                            //以前回收的一个对象，刚好对应的数据一致
+                            item = tempItem;
+                            _recycledItems.RemoveAt(idx);
+                            item.gameObject.SetActive(true);
+                            return item;
+                        }
+                    }
+
+                    //没有绝对匹配的，则抽取最后找到的item，之后刷新数据并返回
+                    item = tempItem;
+                    _recycledItems.Remove(tempItem);
+                }
+                else
+                {
+                    var go = GameObject.Instantiate(itemPrefab, content);
+                    item = go.AddComponent<ScrollListItem>();
+                    item.rectTransform.anchorMin = Vector2.up;
+                    item.rectTransform.anchorMax = Vector2.up;
+                    item.rectTransform.pivot = Vector2.up;
+                    //Debug.Log($"新生成的 Item GameObject");                
+                }
+
+                var name = string.Format("item_{0}", dataIdx);
+
+                item.gameObject.name = name;
+                item.index = dataIdx;
+                item.data = model.data;
+                item.width = _itemModels[dataIdx].width;
+                item.height = _itemModels[dataIdx].height;
+
+                if (false == item.gameObject.activeInHierarchy)
+                {
+                    item.gameObject.SetActive(true);
+                }
+
+                RenderItem(item, model.data);
             }
 
-            var name = string.Format("item_{0}", dataIdx);
-
-            item.gameObject.name = name;
-            item.index = dataIdx;
-            item.data = model.data;
-            item.width = _itemModels[dataIdx].width;
-            item.height = _itemModels[dataIdx].height;
-
-            if (false == item.gameObject.activeInHierarchy)
+            if (item.index != dataIdx)
             {
-                item.gameObject.SetActive(true);
+                //插入列表项可能导致数据索引改变
+                item.index = dataIdx;
             }
-
-            RenderItem(item, model.data);
 
             return item;
         }
@@ -323,7 +345,7 @@ namespace Jing.TurbochargedScrollList
         {
             var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
             _itemModels.Insert(index, model);
-            MarkDirty(true);
+            MarkDirty(true, true);
         }
 
         /// <summary>

@@ -35,6 +35,7 @@ public class Demo : MonoBehaviour
     {
         var text = item.transform.Find("Text").GetComponent<Text>();
         text.text = string.Format("Idx:{0} V:{1}", item.index, data);
+        item.gameObject.name = $"item_{item.index}";
         //Debug.Log($"渲染一个 Item [idx:{item.index} data:{data}]");
     }
 
