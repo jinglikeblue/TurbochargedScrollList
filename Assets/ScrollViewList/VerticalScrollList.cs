@@ -14,7 +14,7 @@ namespace Jing.TurbochargedScrollList
 
         }
 
-        protected override void ResizeContent()
+        protected override void ResizeContent(UpdateConfig updateConfig)
         {
             float h = 0;
             for (int i = 0; i < _itemModels.Count; i++)
@@ -26,7 +26,7 @@ namespace Jing.TurbochargedScrollList
             SetContentSize(viewportSize.x, h);
         }
 
-        protected override void Refresh()
+        protected override void Refresh(UpdateConfig updateConfig)
         {            
             //内容容器高度
             var contentHeight = content.rect.height;            

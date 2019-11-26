@@ -9,6 +9,24 @@ namespace Jing.TurbochargedScrollList
     /// </summary>
     public abstract class BaseScrollList<TData>: IScrollList<TData>
     {
+        public enum EKeepPaddingType
+        {
+            /// <summary>
+            /// 不刻意保持间距
+            /// </summary>
+            NONE,
+
+            /// <summary>
+            /// 保持和内容起始的间距
+            /// </summary>
+            START,
+
+            /// <summary>
+            /// 保持和内容结束位置的间距
+            /// </summary>
+            END
+        }
+
         /// <summary>
         /// 更新配置
         /// </summary>
@@ -25,31 +43,15 @@ namespace Jing.TurbochargedScrollList
             public bool isRefresh;
 
             /// <summary>
-            /// 刷新时，是否保持当前显示列表的显示项位置。如果是，则对应的调整content的滚动位置。
+            /// 渲染时保持间距的配置
             /// </summary>
-            public bool isHoldShowingItemPosition;
-
-            /// <summary>
-            /// 上一次刷新开始的数据索引
-            /// </summary>
-            public int lastStartIndex;
-
-            /// <summary>
-            /// 上一次刷新开始的数据偏移位置
-            /// </summary>
-            public Vector2 lastStartIndexPositionOff;
-
-            /// <summary>
-            /// 最后渲染开始的位置
-            /// </summary>
-            public float lastContentRenderStartPos;
+            public EKeepPaddingType keepPaddingType;
 
             public void Reset()
             {
                 isResizeContent = false;
                 isRefresh = false;
-                lastStartIndex = 0;
-                lastContentRenderStartPos = 0;
+                keepPaddingType = EKeepPaddingType.NONE;
             }
         }
 
@@ -102,7 +104,22 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         protected readonly List<ScrollListItem> _recycledItems = new List<ScrollListItem>();
 
+        /// <summary>
+        /// 内容移动模型
+        /// </summary>
+        protected readonly ContentMoveModel _contentMove = new ContentMoveModel();
+
         ScrollListAdapter _proxy;
+
+        /// <summary>
+        /// 上一次刷新开始的数据索引
+        /// </summary>
+        protected int _lastStartIndex;
+
+        /// <summary>
+        /// 上一次刷新开始渲染的位置
+        /// </summary>
+        protected float _lastContentRenderStartPos;
 
         public BaseScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap)
         {
@@ -161,11 +178,10 @@ namespace Jing.TurbochargedScrollList
             }
 
             return datas;
-        }
+        }        
 
         private void OnScroll(Vector2 v)
-        {
-            scrollPos = v;
+        {            
             MarkDirty();
         }
 
@@ -173,17 +189,20 @@ namespace Jing.TurbochargedScrollList
         /// 标记列表有变化，将在下一次更新时进行刷新
         /// </summary>
         /// <param name="isResizeContent"></param>
-        protected void MarkDirty(bool isResizeContent = false, bool isHoldShowingItemPosition = false)
+        protected void MarkDirty(bool isResizeContent = false, EKeepPaddingType keepPaddingType = EKeepPaddingType.NONE)
         {
             _updateConfig.isRefresh = true;
             _updateConfig.isResizeContent |= isResizeContent;
-            _updateConfig.isHoldShowingItemPosition |= isHoldShowingItemPosition;
+            if (keepPaddingType != EKeepPaddingType.NONE)
+            {
+                _updateConfig.keepPaddingType = keepPaddingType;
+            }
         }
 
         void Update()
         {
             var updateConfig = _updateConfig;
-            _updateConfig.Reset();
+            _updateConfig.Reset();           
 
             UpdateViewportSize();
 
@@ -195,14 +214,16 @@ namespace Jing.TurbochargedScrollList
                 return;
             }
 
+            _contentMove.SetPosition(content.localPosition);
+
             if (updateConfig.isResizeContent)
             {
-                ResizeContent();                
+                ResizeContent(updateConfig);                
             }
 
             if (updateConfig.isRefresh)
             {                
-                Refresh();                
+                Refresh(updateConfig);                
             }
 
             CheckItemsSize();            
@@ -216,8 +237,15 @@ namespace Jing.TurbochargedScrollList
             foreach (var item in _showingItems.Values)
             {
                 if (AdjustmentItemSize(item))
-                {
-                    MarkDirty(true);
+                {                    
+                    if(_contentMove.IsMove2Start)
+                    {
+                        MarkDirty(true, EKeepPaddingType.END);
+                    }
+                    else
+                    {
+                        MarkDirty(true);
+                    }                    
                 }
             }
         }
@@ -225,12 +253,12 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 重新计算content大小
         /// </summary>
-        protected abstract void ResizeContent();
+        protected abstract void ResizeContent(UpdateConfig updateConfig);
 
         /// <summary>
         /// 刷新列表
         /// </summary>
-        protected abstract void Refresh();      
+        protected abstract void Refresh(UpdateConfig updateConfig);      
 
         /// <summary>
         /// 检测并校正item的大小，如果进行了校正，返回true
@@ -345,7 +373,14 @@ namespace Jing.TurbochargedScrollList
         {
             var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
             _itemModels.Insert(index, model);
-            MarkDirty(true, true);
+            if (index <= _lastStartIndex)
+            {
+                MarkDirty(true, EKeepPaddingType.END);
+            }
+            else
+            {
+                MarkDirty(true);
+            }
         }
 
         /// <summary>
@@ -374,7 +409,14 @@ namespace Jing.TurbochargedScrollList
         public void RemoveAt(int index)
         {
             _itemModels.RemoveAt(index);
-            MarkDirty(true);
+            if (index <= _lastStartIndex)
+            {
+                MarkDirty(true, EKeepPaddingType.END);
+            }
+            else
+            {
+                MarkDirty(true);
+            }
         }
 
         /// <summary>
