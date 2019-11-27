@@ -4,9 +4,7 @@ using UnityEngine.UI;
 
 public class Demo : MonoBehaviour
 {
-    public VerticalScrollListComponent vList;
-    public HorizontalScrollListComponent hList;
-    public GridScrollListComponent gridList;
+    public BaseScrollListComponent list;
 
     public InputField inputCount;
 
@@ -25,14 +23,8 @@ public class Demo : MonoBehaviour
             datas[i] = id++;
         }
 
-        vList.renderItem += RenderItem;
-        vList.AddRange(datas);
-
-        hList.renderItem += RenderItem;
-        hList.AddRange(datas);
-
-        gridList.renderItem += RenderItem;
-        gridList.AddRange(datas);
+        list.renderItem += RenderItem;
+        list.AddRange(datas);
     }
 
     private void RenderItem(ScrollListItem item, object data)
@@ -44,9 +36,7 @@ public class Demo : MonoBehaviour
 
     public void Clear()
     {
-        vList.Clear();
-        hList.Clear();
-        gridList.Clear();
+        list.Clear();
     }
 
     public void Add()
@@ -55,31 +45,23 @@ public class Demo : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             var data = id++;
-            vList.Add(data);
-            hList.Add(data);
-            gridList.Add(data);
+            list.Add(data);
         }
     }
 
     public void Insert()
     {
         var data = id++;
-        vList.Insert(2, data);
-        hList.Insert(2, data);
-        gridList.Insert(2, data);
+        list.Insert(2, data);
     }
 
     public void RemoveAt()
     {
-        vList.RemoveAt(2);
-        hList.RemoveAt(2);
-        gridList.RemoveAt(2);
+        list.RemoveAt(2);
     }
 
     public void Remove()
     {
-        vList.Remove(0);
-        hList.Remove(0);
-        gridList.Remove(0);
+        list.Remove(0);
     }
 }
