@@ -5,48 +5,51 @@ using UnityEngine;
 namespace Jing.TurbochargedScrollList
 {
     /// <summary>
-    /// 垂直滚动列表
+    /// 水平滚动列表
     /// </summary>
-    public class VerticalScrollList<TData> : BaseScrollList<TData>
+    public class HorizontalScrollList<TData> : BaseScrollList<TData>
     {
-        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
+        public HorizontalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
         {
-
+            
         }
 
         protected override void ResizeContent(UpdateData updateConfig)
         {
-            float h = 0;
+            float w = 0;
             for (int i = 0; i < _itemModels.Count; i++)
             {
-                h += (_itemModels[i].height + gap);
+                w += (_itemModels[i].width + gap);
             }
-            h -= gap;
+            w -= gap;
 
-            SetContentSize(viewportSize.x, h);
+            SetContentSize(w, viewportSize.y);
         }
 
         protected override void Refresh(UpdateData updateConfig, out int lastStartIndex)
-        {            
-            //内容容器高度
-            var contentHeight = content.rect.height;
+        {
+            //内容容器宽度
+            var contentWidth = content.rect.width;
 
             if (updateConfig.keepPaddingType == EKeepPaddingType.END)
             {
-                var targetRenderStartPos = (contentHeight - updateConfig.tempLastContentRect.height) + contentRenderStartPos;
+                var targetRenderStartPos = (contentWidth - updateConfig.tempLastContentRect.width) + contentRenderStartPos;
                 var temp = content.localPosition;
-                temp.y = targetRenderStartPos;
+                temp.x = -targetRenderStartPos;
                 content.localPosition = temp;                
             }
 
-            contentRenderStartPos = content.localPosition.y;
+            //content的滚动是负数
+            contentRenderStartPos = -content.localPosition.x;
+            
+
             if(contentRenderStartPos < 0)
             {
                 contentRenderStartPos = 0;
             }
-            else if(contentRenderStartPos > contentHeight - viewportSize.y)
+            else if(contentRenderStartPos > contentWidth - viewportSize.x)
             {
-                contentRenderStartPos = contentHeight - viewportSize.y;
+                contentRenderStartPos = contentWidth - viewportSize.x;
             }
 
             int dataIdx;
@@ -54,21 +57,19 @@ namespace Jing.TurbochargedScrollList
 
             for(dataIdx = 0; dataIdx < _itemModels.Count; dataIdx++)
             {
-                var dataBottom = startPos + _itemModels[dataIdx].height;
-                if (dataBottom >= contentRenderStartPos)
+                var dataRight = startPos + _itemModels[dataIdx].width;
+                if (dataRight >= contentRenderStartPos)
                 {
                     //就是我了
                     break;
                 }
 
-                startPos = dataBottom + gap;
+                startPos = dataRight + gap;
             }
-
             lastStartIndex = dataIdx;
-
             //显示的内容刚好大于这个值即可           
-            float contentHeightLimit = viewportSize.y;
-            float itemY = -startPos;
+            float contentWidthLimit = viewportSize.x;
+            float itemX = startPos;
 
             /// <summary>
             /// 最后一次显示的Item的缓存
@@ -82,19 +83,18 @@ namespace Jing.TurbochargedScrollList
                 var model = _itemModels[dataIdx];
 
                 ScrollListItem item = CreateItem(model, dataIdx, lastShowingItems);
-                //item.gameObject.name += $"_{_itemModels[dataIdx].height}";
-                
+                //item.gameObject.name += $"_{_itemModels[dataIdx].height}";                                
                 _showingItems[model] = item;
 
                 var pos = Vector3.zero;
-                pos.y = itemY;
+                pos.x = itemX;
                 item.rectTransform.localPosition = pos;
-                //下一个item的Y坐标
-                itemY -= (item.height + gap);
+                //下一个item的X坐标
+                itemX += (item.width + gap);
                 //下一个item的索引
                 dataIdx++;
 
-                if (-contentRenderStartPos - itemY >= contentHeightLimit)
+                if (itemX - contentRenderStartPos >= contentWidthLimit)
                 {
                     break;
                 }
@@ -110,13 +110,13 @@ namespace Jing.TurbochargedScrollList
                 _recycledItems.Add(item);
             }            
         }
-        
+
         protected override bool AdjustmentItemSize(ScrollListItem item)
         {
-            if (item.height != _itemModels[item.index].height)
+            if (item.width != _itemModels[item.index].width)
             {
-                //Debug.Log($"item[{item.index}]的尺寸改变 {_itemModels[item.index].height} => {item.height}");
-                _itemModels[item.index].height = item.height;
+                //Debug.Log($"item[{item.index}]的尺寸改变 {_itemModels[item.index].width} => {item.width}");
+                _itemModels[item.index].width = item.width;
                 return true;
             }
             return false;
