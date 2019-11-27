@@ -6,6 +6,7 @@ public class Demo : MonoBehaviour
 {
     public VerticalScrollListComponent vList;
     public HorizontalScrollListComponent hList;
+    public GridScrollListComponent gridList;
 
     public InputField inputCount;
 
@@ -29,6 +30,9 @@ public class Demo : MonoBehaviour
 
         hList.renderItem += RenderItem;
         hList.AddRange(datas);
+
+        gridList.renderItem += RenderItem;
+        gridList.AddRange(datas);
     }
 
     private void RenderItem(ScrollListItem item, object data)
@@ -42,6 +46,7 @@ public class Demo : MonoBehaviour
     {
         vList.Clear();
         hList.Clear();
+        gridList.Clear();
     }
 
     public void Add()
@@ -52,6 +57,7 @@ public class Demo : MonoBehaviour
             var data = id++;
             vList.Add(data);
             hList.Add(data);
+            gridList.Add(data);
         }
     }
 
@@ -60,17 +66,20 @@ public class Demo : MonoBehaviour
         var data = id++;
         vList.Insert(2, data);
         hList.Insert(2, data);
+        gridList.Insert(2, data);
     }
 
     public void RemoveAt()
     {
         vList.RemoveAt(2);
         hList.RemoveAt(2);
+        gridList.RemoveAt(2);
     }
 
     public void Remove()
     {
         vList.Remove(0);
         hList.Remove(0);
+        gridList.Remove(0);
     }
 }

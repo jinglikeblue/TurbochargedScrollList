@@ -11,7 +11,7 @@ namespace Jing.TurbochargedScrollList
     {
         public event Action onUpdate;
 
-        private void Update()
+        private void LateUpdate()
         {
             onUpdate?.Invoke();
         }

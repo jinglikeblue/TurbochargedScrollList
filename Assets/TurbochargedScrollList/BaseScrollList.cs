@@ -336,7 +336,7 @@ namespace Jing.TurbochargedScrollList
 
 
         #region 数据操作
-        public void AddRange(IEnumerable<TData> collection)
+        public virtual void AddRange(IEnumerable<TData> collection)
         {                              
             foreach (var data in collection)
             {
@@ -344,14 +344,14 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
-        public void Add(TData data)
+        public virtual void Add(TData data)
         {
             var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
             _itemModels.Add(model);
             MarkDirty(true);
         }
 
-        public void Insert(int index, TData data)
+        public virtual void Insert(int index, TData data)
         {
             var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
             _itemModels.Insert(index, model);
@@ -370,7 +370,7 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public bool Remove(TData data)
+        public virtual bool Remove(TData data)
         {
             for(int i = 0;i < _itemModels.Count; i++)
             {
@@ -388,7 +388,7 @@ namespace Jing.TurbochargedScrollList
         /// 移除指定索引位置的数据
         /// </summary>
         /// <param name="index"></param>
-        public void RemoveAt(int index)
+        public virtual void RemoveAt(int index)
         {
             _itemModels.RemoveAt(index);
             if (index <= lastStartIndex)
@@ -404,7 +404,7 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 清空列表，实际上是将数据清除，并将对象放入对象池
         /// </summary>
-        public void Clear()
+        public virtual void Clear()
         {
             _updateData = new UpdateData();
             _recycledItems.Clear();
