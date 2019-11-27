@@ -80,11 +80,6 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public Vector2 viewportSize { get; private set; }
 
-        /// <summary>
-        /// 列表项间距
-        /// </summary>
-        public float gap { get; private set; }
-
         public Vector2 scrollPos { get; protected set; }        
 
         /// <summary>
@@ -116,32 +111,30 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public int lastStartIndex { get; private set; }
 
-        public BaseScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap)
+        protected void Init(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender)
         {
-            Init(scrollView);            
-            this.gap = gap;
-            this.itemPrefab = itemPrefab;
-            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().sizeDelta;
-
-            _itemRender = itemRender;
-            
-            scrollPos = Vector2.up;
-
-            _proxy = scrollView.GetComponent<ScrollListAdapter>();
-            if(null == _proxy)
-            {
-                _proxy = scrollView.AddComponent<ScrollListAdapter>();
-            }
-            _proxy.onUpdate += Update;            
-        }
-
-        void Init(GameObject gameObject)
-        {
-            scrollRect = gameObject.GetComponent<ScrollRect>();
+            scrollRect = scrollView.GetComponent<ScrollRect>();
 
             content = scrollRect.content;
             content.localPosition = Vector3.zero;
 
+            
+            
+            this.itemPrefab = itemPrefab;
+            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().sizeDelta;
+
+            _itemRender = itemRender;
+
+            scrollPos = Vector2.up;
+
+            _proxy = scrollView.GetComponent<ScrollListAdapter>();
+            if (null == _proxy)
+            {
+                _proxy = scrollView.AddComponent<ScrollListAdapter>();
+            }
+
+            //监听事件
+            _proxy.onUpdate += Update;
             scrollRect.onValueChanged.AddListener(OnScroll);
         }
 

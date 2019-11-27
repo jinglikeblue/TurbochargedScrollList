@@ -8,9 +8,15 @@ namespace Jing.TurbochargedScrollList
     /// </summary>
     public class VerticalScrollList<TData> : BaseScrollList<TData>
     {
-        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
-        {
+        /// <summary>
+        /// 列表项间距
+        /// </summary>
+        public float gap { get; private set; }
 
+        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0)
+        {
+            this.gap = gap;
+            Init(scrollView, itemPrefab, itemRender);
         }
 
         protected override void ResizeContent(UpdateData updateConfig)
