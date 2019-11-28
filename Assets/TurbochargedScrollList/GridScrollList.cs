@@ -4,9 +4,38 @@ using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
+    public class GridScrollList : GridScrollList<object>
+    {
+        public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap) : base(scrollView, itemRender, gap)
+        {
+        }
+
+        public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap) : base(scrollView, itemPrefab, itemRender, gap)
+        {
+        }
+
+        public virtual void AddRange<TInput>(IEnumerable<TInput> collection)
+        {
+            foreach (var data in collection)
+            {
+                Add(data);
+            }
+        }
+    }
+
     public class GridScrollList<TData> : BaseScrollList<TData>
     {
         public Vector2 gap { get; private set; }
+
+        public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap)
+        {
+            this.gap = gap;
+            var scrollRect = scrollView.GetComponent<ScrollRect>();
+            var itemPrefab = scrollRect.content.GetChild(0);
+            itemPrefab.gameObject.SetActive(false);
+            itemPrefab.SetParent(scrollView.transform);
+            Init(scrollView, itemPrefab.gameObject, itemRender);
+        }
 
         public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap)
         {
