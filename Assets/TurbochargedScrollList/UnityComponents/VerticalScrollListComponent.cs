@@ -9,7 +9,7 @@ namespace Jing.TurbochargedScrollList
 
         private void Awake()
         {
-            list = new VerticalScrollList<object>(gameObject, itemPrefab, ItemRender, gap);
+            list = new VerticalScrollList(gameObject, itemPrefab, ItemRender, gap);
         }
     }
 }

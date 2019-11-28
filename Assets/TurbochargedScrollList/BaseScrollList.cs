@@ -302,6 +302,10 @@ namespace Jing.TurbochargedScrollList
                 else
                 {
                     var go = GameObject.Instantiate(itemPrefab, content);
+                    if (false == go.activeInHierarchy)
+                    {
+                        go.SetActive(true);
+                    }
                     item = go.AddComponent<ScrollListItem>();
                     item.rectTransform.anchorMin = Vector2.up;
                     item.rectTransform.anchorMax = Vector2.up;

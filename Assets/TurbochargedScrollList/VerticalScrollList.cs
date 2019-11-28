@@ -1,8 +1,28 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
+    public class VerticalScrollList : VerticalScrollList<object>
+    {
+        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemRender, gap)
+        {
+        }
+
+        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
+        {
+        }
+
+        public virtual void AddRange<TInput>(IEnumerable<TInput> collection)
+        {
+            foreach (var data in collection)
+            {
+                Add(data);
+            }
+        }
+    }
+
     /// <summary>
     /// 垂直滚动列表
     /// </summary>
@@ -12,6 +32,16 @@ namespace Jing.TurbochargedScrollList
         /// 列表项间距
         /// </summary>
         public float gap { get; private set; }
+
+        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap = 0)
+        {
+            this.gap = gap;
+            var scrollRect = scrollView.GetComponent<ScrollRect>();
+            var itemPrefab = scrollRect.content.GetChild(0);
+            itemPrefab.gameObject.SetActive(false);
+            itemPrefab.SetParent(scrollView.transform);            
+            Init(scrollView, itemPrefab.gameObject, itemRender);
+        }
 
         public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0)
         {

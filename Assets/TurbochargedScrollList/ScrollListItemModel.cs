@@ -26,8 +26,8 @@ namespace Jing.TurbochargedScrollList
         public ScrollListItemModel(T data, Vector2 defaultSize)
         {
             this.data = data;
-            height = defaultSize.x;
-            width = defaultSize.y;
+            width = defaultSize.x;
+            height = defaultSize.y;
         }
     }
 }
