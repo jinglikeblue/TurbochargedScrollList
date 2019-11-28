@@ -30,7 +30,7 @@ public class Demo : MonoBehaviour
     private void RenderItem(ScrollListItem item, object data)
     {
         var text = item.transform.Find("Text").GetComponent<Text>();
-        text.text = string.Format("Idx:{0} V:{1}", item.index, data);        
+        text.text = string.Format("{0}", item.index);
         //Debug.Log($"渲染一个 Item [idx:{item.index} data:{data}]");
     }
 

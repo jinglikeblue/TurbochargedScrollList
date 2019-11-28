@@ -56,7 +56,7 @@ public class Item : MonoBehaviour
             {
                 idx = _item.index;
                 var text = transform.Find("Text").GetComponent<Text>();
-                text.text = string.Format("Idx:{0} V:{1}", idx, _item.data);                
+                text.text = string.Format("{0}", idx);                
             }
         }
     }
