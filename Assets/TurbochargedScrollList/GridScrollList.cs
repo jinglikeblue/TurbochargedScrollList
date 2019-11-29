@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -95,56 +96,107 @@ namespace Jing.TurbochargedScrollList
 
         protected override void Refresh(UpdateData updateConfig, out int lastStartIndex)
         {
+            var scrollX = -content.localPosition.x;
+            var scrollY = content.localPosition.y;                       
+
             switch (constraint)
             {
                 case EGridConstraint.FLEXIBLE:
                 case EGridConstraint.FIXED_COLUMN_COUNT:
-                    /*
-                     * 从左往右，从上往下依次刷新
-                     * ↓ ↓ ↓ Example
-                     * 0 1 2
-                     * 3 4 5
-                     * 6 7 
-                     */
+                    lastStartIndex = RefreshRowByRow(scrollX, scrollY);
                     break;
                 case EGridConstraint.FIXED_ROW_COUNT:
-                    /*
-                     * 从上往下，从左往右依次刷新
-                     * ↓ ↓ ↓ Example
-                     * 0 3 6
-                     * 1 4 7
-                     * 2 5 
-                     */
+                    lastStartIndex = RefreshColByCol(scrollX, scrollY);
                     break;
-            }
+                default:
+                    throw new Exception($"Wrong constraint:{constraint}");
+            }            
+        }
+
+        /// <summary>
+        /// 从左往右，从上往下依次刷新
+        /// ↓ ↓ ↓ Example
+        /// 0 1 2
+        /// 3 4 5
+        /// 6 7 
+        /// </summary>
+        int RefreshRowByRow(float scrollX, float scrollY)
+        {
+            float bigW = itemDefaultfSize.x + gap.x;
+            float bigH = itemDefaultfSize.y + gap.y;
+
+            int startIndex = 0;
+
+            //根据滚动区域左上角算出起始item的二维位置;
+            Vector2Int startPos = new Vector2Int((int)(scrollX / bigW), (int)(scrollY / bigH));
+            //根据滚动区域左下角算出结束item的二维位置
+            Vector2Int endPos = new Vector2Int((int)(scrollX + content.rect.width / bigW), (int)(scrollY + content.rect.height / bigH));
+            //计算出关联的所有Item的索引
 
 
-            lastStartIndex = 0;
+            return startIndex;
+        }
 
-            for (int i = 0; i < content.transform.childCount; i++)
-            {
-                var t = content.transform.GetChild(i);
-                var item = t.GetComponent<ScrollListItem>();
-                if (item.index != i)
-                {
-                    item.index = i;
-                    RenderItem(item, (TData)item.data);
-                }
-            }
+        /// <summary>
+        /// 从上往下，从左往右依次刷新
+        /// ↓ ↓ ↓ Example
+        /// 0 3 6 
+        /// 1 4 7
+        /// 2 5 
+        /// </summary>
+        int RefreshColByCol(float scrollX, float scrollY)
+        {
+            float bigW = itemDefaultfSize.x + gap.x;
+            float bigH = itemDefaultfSize.y + gap.y;
+
+            int startIndex = 0;
+            return startIndex;
         }
 
         protected override void ResizeContent(UpdateData updateConfig)
         {
+            float contentW = 0;
+            float contentH = 0 ;
+            int itemAmount = _itemModels.Count;
+
+            float bigW = itemDefaultfSize.x + gap.x;
+            float bigH = itemDefaultfSize.y + gap.y;            
+
             //计算Content大小
             switch (constraint)
             {
                 case EGridConstraint.FLEXIBLE: //根据视口确定Content大小，并且计算出constraint数量
+                    contentW = viewportSize.x;
+                    //计算出constraintCount
+                    constraintCount = (int)((contentW + gap.x) / bigW);
+                    //确定高度,通过item总数和constraintCount算出                    
+                    if(itemAmount > 0)
+                    {
+                        int row = (itemAmount - 1) / constraintCount + 1;
+                        contentH = row * bigH - gap.y;
+                    }                    
                     break;
                 case EGridConstraint.FIXED_COLUMN_COUNT: //根据列数确定Content大小
+                    contentW = constraintCount * (itemDefaultfSize.x + gap.x) - gap.x;
+                    //确定高度,通过item总数和constraintCount算出
+                    if (itemAmount > 0)
+                    {
+                        int row = (itemAmount - 1) / constraintCount + 1;
+                        contentH = row * bigH - gap.y;
+                    }
                     break;
                 case EGridConstraint.FIXED_ROW_COUNT: //根据行数确定Content大小
+                    contentH = constraintCount * (itemDefaultfSize.y + gap.y) - gap.y;
+                    //确定宽度,通过item总数和constraintCount算出                    
+                    if(itemAmount > 0)
+                    {
+                        int col = (itemAmount - 1) / constraintCount + 1;
+                        contentW = col * bigW - gap.x;
+                    }
                     break;
             }
+
+            SetContentSize(contentW, contentH);
         }
 
         ScrollListItem Create(TData data)
