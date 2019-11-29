@@ -64,10 +64,12 @@ namespace Jing.TurbochargedScrollList
             this.gap = gap;
             this.constraint = constraint;
             this.constraintCount = constraintCount;
+
             var scrollRect = scrollView.GetComponent<ScrollRect>();
             var itemPrefab = scrollRect.content.GetChild(0);
             itemPrefab.gameObject.SetActive(false);
             itemPrefab.SetParent(scrollView.transform);
+
             Init(scrollView, itemPrefab.gameObject, itemRender);
         }
 
@@ -76,6 +78,7 @@ namespace Jing.TurbochargedScrollList
             this.gap = gap;
             this.constraint = constraint;
             this.constraintCount = constraintCount;
+
             Init(scrollView, itemPrefab, itemRender);
 
             var glg = content.gameObject.AddComponent<GridLayoutGroup>();
@@ -108,6 +111,7 @@ namespace Jing.TurbochargedScrollList
 
         protected override void ResizeContent(UpdateData updateConfig)
         {
+            //计算Content大小
 
         }
 
