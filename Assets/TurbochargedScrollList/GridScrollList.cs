@@ -95,6 +95,30 @@ namespace Jing.TurbochargedScrollList
 
         protected override void Refresh(UpdateData updateConfig, out int lastStartIndex)
         {
+            switch (constraint)
+            {
+                case EGridConstraint.FLEXIBLE:
+                case EGridConstraint.FIXED_COLUMN_COUNT:
+                    /*
+                     * 从左往右，从上往下依次刷新
+                     * ↓ ↓ ↓ Example
+                     * 0 1 2
+                     * 3 4 5
+                     * 6 7 
+                     */
+                    break;
+                case EGridConstraint.FIXED_ROW_COUNT:
+                    /*
+                     * 从上往下，从左往右依次刷新
+                     * ↓ ↓ ↓ Example
+                     * 0 3 6
+                     * 1 4 7
+                     * 2 5 
+                     */
+                    break;
+            }
+
+
             lastStartIndex = 0;
 
             for (int i = 0; i < content.transform.childCount; i++)
@@ -112,7 +136,15 @@ namespace Jing.TurbochargedScrollList
         protected override void ResizeContent(UpdateData updateConfig)
         {
             //计算Content大小
-
+            switch (constraint)
+            {
+                case EGridConstraint.FLEXIBLE: //根据视口确定Content大小，并且计算出constraint数量
+                    break;
+                case EGridConstraint.FIXED_COLUMN_COUNT: //根据列数确定Content大小
+                    break;
+                case EGridConstraint.FIXED_ROW_COUNT: //根据行数确定Content大小
+                    break;
+            }
         }
 
         ScrollListItem Create(TData data)
