@@ -218,7 +218,7 @@ namespace Jing.TurbochargedScrollList
 
             for (int i = 0; i < list.Count; i++)
             {
-                var gridPos = list[i];
+                var gridPos = list[i];                
                 var model = _itemModels[gridPos.index];
 
                 ScrollListItem item = CreateItem(model, gridPos.index, lastShowingItems);
@@ -278,31 +278,44 @@ namespace Jing.TurbochargedScrollList
                         contentH = rowCount * bigH - gap.y;
                     }
 
-                    colCount = constraintCount;
+                    colCount = constraintCount;                    
                     break;
                 case EGridConstraint.FIXED_COLUMN_COUNT: //根据列数确定Content大小
-                    contentW = constraintCount * (itemDefaultfSize.x + gap.x) - gap.x;
+
+                    colCount = constraintCount;
+                    if (_itemModels.Count < colCount)
+                    {
+                        colCount = _itemModels.Count;
+                    }
+
+                    contentW = colCount * (itemDefaultfSize.x + gap.x) - gap.x;
                     //确定高度,通过item总数和constraintCount算出
                     if (itemAmount > 0)
                     {
-                        rowCount = (itemAmount - 1) / constraintCount + 1;
+                        rowCount = (itemAmount - 1) / colCount + 1;
                         contentH = rowCount * bigH - gap.y;
-                    }
+                    }                    
 
-                    colCount = constraintCount;
                     break;
                 case EGridConstraint.FIXED_ROW_COUNT: //根据行数确定Content大小
-                    contentH = constraintCount * (itemDefaultfSize.y + gap.y) - gap.y;
+
+                    rowCount = constraintCount;
+                    if (_itemModels.Count < rowCount)
+                    {
+                        rowCount = _itemModels.Count;
+                    }
+
+                    contentH = rowCount * (itemDefaultfSize.y + gap.y) - gap.y;
                     //确定宽度,通过item总数和constraintCount算出                    
                     if (itemAmount > 0)
                     {
-                        colCount = (itemAmount - 1) / constraintCount + 1;
+                        colCount = (itemAmount - 1) / rowCount + 1;
                         contentW = colCount * bigW - gap.x;
                     }
 
-                    rowCount = constraintCount;
+
                     break;
-            }
+            }            
 
             SetContentSize(contentW, contentH);
         }
