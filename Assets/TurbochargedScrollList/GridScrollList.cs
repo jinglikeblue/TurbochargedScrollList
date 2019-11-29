@@ -24,12 +24,12 @@ namespace Jing.TurbochargedScrollList
 
     public class GridScrollList : GridScrollList<object>
     {
-        public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap) : base(scrollView, itemRender, gap)
+        public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0) : base(scrollView, itemRender, gap, constraint, constraintCount)
         {
-            
+
         }
 
-        public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap) : base(scrollView, itemPrefab, itemRender, gap)
+        public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0) : base(scrollView, itemPrefab, itemRender, gap, constraint, constraintCount)
         {
         }
 
@@ -44,11 +44,26 @@ namespace Jing.TurbochargedScrollList
 
     public class GridScrollList<TData> : BaseScrollList<TData>
     {
+        /// <summary>
+        /// 列表项之间的间距
+        /// </summary>
         public Vector2 gap { get; private set; }
 
-        public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap)
+        /// <summary>
+        /// 列表项排列方式限定
+        /// </summary>
+        public EGridConstraint constraint { get; private set; }
+
+        /// <summary>
+        /// 当constraint不为「FLEXIBLE」，根据该值确定列数或者行数
+        /// </summary>
+        public int constraintCount { get; private set; }
+
+        public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
         {
             this.gap = gap;
+            this.constraint = constraint;
+            this.constraintCount = constraintCount;
             var scrollRect = scrollView.GetComponent<ScrollRect>();
             var itemPrefab = scrollRect.content.GetChild(0);
             itemPrefab.gameObject.SetActive(false);
@@ -56,9 +71,11 @@ namespace Jing.TurbochargedScrollList
             Init(scrollView, itemPrefab.gameObject, itemRender);
         }
 
-        public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap)
+        public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
         {
             this.gap = gap;
+            this.constraint = constraint;
+            this.constraintCount = constraintCount;
             Init(scrollView, itemPrefab, itemRender);
 
             var glg = content.gameObject.AddComponent<GridLayoutGroup>();
@@ -81,7 +98,7 @@ namespace Jing.TurbochargedScrollList
             {
                 var t = content.transform.GetChild(i);
                 var item = t.GetComponent<ScrollListItem>();
-                if(item.index != i)
+                if (item.index != i)
                 {
                     item.index = i;
                     RenderItem(item, (TData)item.data);
@@ -103,25 +120,25 @@ namespace Jing.TurbochargedScrollList
             item.rectTransform.pivot = Vector2.up;
             item.gameObject.name = $"item_{content.transform.childCount}";
             item.data = data;
-            item.index = item.transform.GetSiblingIndex();            
+            item.index = item.transform.GetSiblingIndex();
             return item;
         }
 
         public override void AddRange(IEnumerable<TData> collection)
         {
-            foreach(var data in collection)
+            foreach (var data in collection)
             {
                 Add(data);
             }
         }
 
         public override void Add(TData data)
-        {                       
+        {
             RenderItem(Create(data), data);
         }
 
         public override void Insert(int index, TData data)
-        {            
+        {
             var item = Create(data);
             item.transform.SetSiblingIndex(index);
             item.index = index;
@@ -131,7 +148,7 @@ namespace Jing.TurbochargedScrollList
 
         public override bool Remove(TData data)
         {
-            for(int i = 0; i < content.transform.childCount; i++)
+            for (int i = 0; i < content.transform.childCount; i++)
             {
                 var t = content.transform.GetChild(i);
                 if (t.GetComponent<ScrollListItem>().data.Equals(data))
