@@ -17,7 +17,7 @@ public class Demo : MonoBehaviour
         Application.targetFrameRate = 60;
 #endif
 
-        var datas = new int[500];
+        var datas = new int[1600];
         for(int i = 0; i < datas.Length; i++)
         {
             datas[i] = id++;
