@@ -7,7 +7,6 @@ namespace Jing.TurbochargedScrollList
 {
     struct GridPos
     {
-
         public int x { get; private set; }
 
         public int y { get; private set; }
@@ -18,12 +17,14 @@ namespace Jing.TurbochargedScrollList
 
         public int index { get; private set; }
 
+        int _gridRowCount;
         int _gridColCount;
         float _gridW;
         float _gridH;
 
         public GridPos(int x, int y, int gridColCount, int gridRowCount, float gridW, float gridH)
         {
+            this._gridRowCount = gridRowCount;
             this._gridColCount = gridColCount;
             this._gridW = gridW;
             this._gridH = gridH;
@@ -52,6 +53,15 @@ namespace Jing.TurbochargedScrollList
             this.pixelY = y * _gridH;
             this.index = y * _gridColCount + x;
         }
+
+        /// <summary>
+        /// 将index在x、y轴上的位置
+        /// </summary>
+        public void AxisFlip()
+        {
+            this.index = x * _gridRowCount + y;
+        }
+
     }
 
 
@@ -121,6 +131,16 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public int colCount { get; private set; }
 
+        /// <summary>
+        /// item宽度加上间距的值
+        /// </summary>
+        float _bigW;
+
+        /// <summary>
+        /// item高度加上间距的值
+        /// </summary>
+        float _bigH;
+
         public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
         {
             this.gap = gap;
@@ -177,58 +197,26 @@ namespace Jing.TurbochargedScrollList
                 scrollY = 0;
             }
 
-            switch (constraint)
-            {
-                case EGridConstraint.FLEXIBLE:
-                case EGridConstraint.FIXED_COLUMN_COUNT:
-                    lastStartIndex = RefreshRowByRow(scrollX, scrollY);
-                    break;
-                case EGridConstraint.FIXED_ROW_COUNT:
-                    lastStartIndex = RefreshColByCol(scrollX, scrollY);
-                    break;
-                default:
-                    throw new Exception($"Wrong constraint:{constraint}");
-            }
-        }
+            bool isColByCol = constraint == EGridConstraint.FIXED_ROW_COUNT ? true : false;
 
-        /// <summary>
-        /// 从左往右，从上往下依次刷新
-        /// ↓ ↓ ↓ Example
-        /// 0 1 2
-        /// 3 4 5
-        /// 6 7 
-        /// </summary>
-        int RefreshRowByRow(float scrollX, float scrollY)
-        {
             //计算出关联的所有Item的索引
             List<GridPos> list = new List<GridPos>();
-            int startIndex = 0;
-
+            lastStartIndex = 0;
             if (colCount > 0 && rowCount > 0)
             {
-                float bigW = itemDefaultfSize.x + gap.x;
-                float bigH = itemDefaultfSize.y + gap.y;                
-
                 //根据滚动区域左上角算出起始item的二维位置;
-                GridPos startPos = new GridPos((int)(scrollX / bigW), (int)(scrollY / bigH), colCount, rowCount, bigW, bigH);
-                startIndex = startPos.index;
+                GridPos startPos = new GridPos((int)(scrollX / _bigW), (int)(scrollY / _bigH), colCount, rowCount, _bigW, _bigH);
+                lastStartIndex = startPos.index;
                 //根据滚动区域左下角算出结束item的二维位置
-                GridPos endPos = new GridPos((int)((scrollX + viewportSize.x) / bigW), (int)((scrollY + viewportSize.y) / bigH), colCount, rowCount, bigW, bigH);
+                GridPos endPos = new GridPos((int)((scrollX + viewportSize.x) / _bigW), (int)((scrollY + viewportSize.y) / _bigH), colCount, rowCount, _bigW, _bigH);
 
-                for (int y = startPos.y; y <= endPos.y; y++)
+                if(isColByCol)
                 {
-                    for (int x = startPos.x; x <= endPos.x; x++)
-                    {
-                        var gp = new GridPos(x, y, colCount, rowCount, bigW, bigH);
-                        if (gp.index >= 0 && gp.index < _itemModels.Count)
-                        {
-                            list.Add(gp);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                    RefreshGridPosColByCol(list, ref startPos, ref endPos);
+                }
+                else
+                {
+                    RefreshGridPosRowByRow(list, ref startPos, ref endPos);
                 }
             }
 
@@ -241,7 +229,7 @@ namespace Jing.TurbochargedScrollList
 
             for (int i = 0; i < list.Count; i++)
             {
-                var gridPos = list[i];                
+                var gridPos = list[i];
                 var model = _itemModels[gridPos.index];
 
                 ScrollListItem item = CreateItem(model, gridPos.index, lastShowingItems);
@@ -255,8 +243,34 @@ namespace Jing.TurbochargedScrollList
                 item.gameObject.SetActive(false);
                 _recycledItems.Add(item);
             }
-
-            return startIndex;
+        }
+        
+        
+        /// <summary>
+        /// 从左往右，从上往下依次刷新
+        /// ↓ ↓ ↓ Example
+        /// 0 1 2
+        /// 3 4 5
+        /// 6 7 
+        /// </summary>
+        void RefreshGridPosRowByRow(List<GridPos> output, ref GridPos startPos, ref GridPos endPos)
+        {
+            output.Clear();
+            for (int y = startPos.y; y <= endPos.y; y++)
+            {
+                for (int x = startPos.x; x <= endPos.x; x++)
+                {
+                    var gp = new GridPos(x, y, colCount, rowCount, _bigW, _bigH);
+                    if (gp.index >= 0 && gp.index < _itemModels.Count)
+                    {
+                        output.Add(gp);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }            
         }
 
         /// <summary>
@@ -266,14 +280,26 @@ namespace Jing.TurbochargedScrollList
         /// 1 4 7
         /// 2 5 
         /// </summary>
-        int RefreshColByCol(float scrollX, float scrollY)
+        void RefreshGridPosColByCol(List<GridPos> output, ref GridPos startPos, ref GridPos endPos)
         {
-            float bigW = itemDefaultfSize.x + gap.x;
-            float bigH = itemDefaultfSize.y + gap.y;
-
-            int startIndex = 0;
-            return startIndex;
-        }
+            output.Clear();
+            for (int x = startPos.x; x <= endPos.x; x++)
+            {
+                for (int y = startPos.y; y <= endPos.y; y++)
+                {
+                    var gp = new GridPos(x, y, colCount, rowCount, _bigW, _bigH);
+                    gp.AxisFlip();
+                    if (gp.index >= 0 && gp.index < _itemModels.Count)
+                    {
+                        output.Add(gp);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }        
 
         protected override void ResizeContent(UpdateData updateConfig)
         {
@@ -281,8 +307,8 @@ namespace Jing.TurbochargedScrollList
             float contentH = 0;
             int itemAmount = _itemModels.Count;
 
-            float bigW = itemDefaultfSize.x + gap.x;
-            float bigH = itemDefaultfSize.y + gap.y;
+            _bigW = itemDefaultfSize.x + gap.x;
+            _bigH = itemDefaultfSize.y + gap.y;
 
             colCount = 0;
             rowCount = 0;
@@ -293,15 +319,15 @@ namespace Jing.TurbochargedScrollList
                 case EGridConstraint.FLEXIBLE: //根据视口确定Content大小，并且计算出constraint数量
                     contentW = viewportSize.x;
                     //计算出constraintCount
-                    constraintCount = (int)((contentW + gap.x) / bigW);
+                    constraintCount = (int)((contentW + gap.x) / _bigW);
                     //确定高度,通过item总数和constraintCount算出                    
                     if (itemAmount > 0)
                     {
                         rowCount = (itemAmount - 1) / constraintCount + 1;
-                        contentH = rowCount * bigH - gap.y;
+                        contentH = rowCount * _bigH - gap.y;
                     }
 
-                    colCount = constraintCount;                    
+                    colCount = constraintCount;
                     break;
                 case EGridConstraint.FIXED_COLUMN_COUNT: //根据列数确定Content大小
 
@@ -311,13 +337,13 @@ namespace Jing.TurbochargedScrollList
                         colCount = _itemModels.Count;
                     }
 
-                    contentW = colCount * (itemDefaultfSize.x + gap.x) - gap.x; 
+                    contentW = colCount * _bigW - gap.x;
                     //确定高度,通过item总数和constraintCount算出
                     if (itemAmount > 0)
                     {
                         rowCount = (itemAmount - 1) / colCount + 1;
-                        contentH = rowCount * bigH - gap.y;
-                    }                    
+                        contentH = rowCount * _bigH - gap.y;
+                    }
 
                     break;
                 case EGridConstraint.FIXED_ROW_COUNT: //根据行数确定Content大小
@@ -328,7 +354,7 @@ namespace Jing.TurbochargedScrollList
                         rowCount = _itemModels.Count;
                     }
 
-                    contentH = rowCount * (itemDefaultfSize.y + gap.y) - gap.y;
+                    contentH = rowCount * _bigH - gap.y;
                     if (contentH < 0)
                     {
                         contentH = 0;
@@ -337,7 +363,7 @@ namespace Jing.TurbochargedScrollList
                     if (itemAmount > 0)
                     {
                         colCount = (itemAmount - 1) / rowCount + 1;
-                        contentW = colCount * bigW - gap.x;
+                        contentW = colCount * _bigW - gap.x;
                     }
 
 
@@ -349,7 +375,7 @@ namespace Jing.TurbochargedScrollList
                 contentW = 0;
             }
 
-            if(contentH < 0)
+            if (contentH < 0)
             {
                 contentH = 0;
             }

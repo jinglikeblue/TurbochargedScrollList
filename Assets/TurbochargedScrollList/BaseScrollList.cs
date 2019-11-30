@@ -421,9 +421,7 @@ namespace Jing.TurbochargedScrollList
                 item.gameObject.SetActive(false);
                 _recycledItems.Add(item);
             }
-            MarkDirty(true);
-
-            Update();
+            MarkDirty(true);            
         }
         #endregion
     }

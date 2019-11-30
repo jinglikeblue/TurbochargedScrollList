@@ -2252,7 +2252,7 @@ MonoBehaviour:
     type: 3}
   gap: {x: 10, y: 10}
   constraint: 0
-  constraintCount: 10
+  constraintCount: 3
 --- !u!1 &1984999752
 GameObject:
   m_ObjectHideFlags: 0
