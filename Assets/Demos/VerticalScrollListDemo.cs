@@ -29,6 +29,7 @@ public class VerticalScrollListDemo : MonoBehaviour
 
     private void OnItemRender(ScrollListItem item, int data)
     {
+        item.GetComponent<Item>().Refresh();        
         Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
     }
 }
