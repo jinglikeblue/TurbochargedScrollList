@@ -28,11 +28,20 @@ namespace Jing.TurbochargedScrollList
             this._gridW = gridW;
             this._gridH = gridH;
 
-            this.x = x >= gridColCount ? gridColCount - 1 : x;
-            this.y = y >= gridRowCount ? gridRowCount - 1: y;
-            this.pixelX = x * _gridW;
-            this.pixelY = y * _gridH;
-            this.index = y * _gridColCount + x;
+            if (gridColCount == 0 || gridRowCount == 0)
+            {
+                this.x = this.y = 0;
+                this.pixelX = this.pixelY = 0;
+                this.index = -1;
+            }
+            else
+            {
+                this.x = x >= gridColCount ? gridColCount - 1 : x;
+                this.y = y >= gridRowCount ? gridRowCount - 1 : y;
+                this.pixelX = x * _gridW;
+                this.pixelY = y * _gridH;
+                this.index = y * _gridColCount + x;
+            }
         }
 
         public void ChangePos(int x, int y)
@@ -124,6 +133,11 @@ namespace Jing.TurbochargedScrollList
             itemPrefab.SetParent(scrollView.transform);
 
             Init(scrollView, itemPrefab.gameObject, itemRender);
+
+            if (EGridConstraint.FLEXIBLE == constraint)
+            {
+                scrollRect.horizontal = false;
+            }
         }
 
         public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
@@ -133,6 +147,11 @@ namespace Jing.TurbochargedScrollList
             this.constraintCount = constraintCount;
 
             Init(scrollView, itemPrefab, itemRender);
+
+            if (EGridConstraint.FLEXIBLE == constraint)
+            {
+                scrollRect.horizontal = false;
+            }
         }
 
         protected override bool AdjustmentItemSize(ScrollListItem item)
@@ -181,30 +200,34 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         int RefreshRowByRow(float scrollX, float scrollY)
         {
-            float bigW = itemDefaultfSize.x + gap.x;
-            float bigH = itemDefaultfSize.y + gap.y;
-
-            int startIndex = 0;
-
-            //根据滚动区域左上角算出起始item的二维位置;
-            GridPos startPos = new GridPos((int)(scrollX / bigW), (int)(scrollY / bigH), colCount, rowCount, bigW, bigH);
-            startIndex = startPos.index;
-            //根据滚动区域左下角算出结束item的二维位置
-            GridPos endPos = new GridPos((int)((scrollX + viewportSize.x) / bigW), (int)((scrollY + viewportSize.y) / bigH), colCount, rowCount, bigW, bigH);
             //计算出关联的所有Item的索引
             List<GridPos> list = new List<GridPos>();
-            for (int y = startPos.y; y <= endPos.y; y++)
+            int startIndex = 0;
+
+            if (colCount > 0 && rowCount > 0)
             {
-                for (int x = startPos.x; x <= endPos.x; x++)
+                float bigW = itemDefaultfSize.x + gap.x;
+                float bigH = itemDefaultfSize.y + gap.y;                
+
+                //根据滚动区域左上角算出起始item的二维位置;
+                GridPos startPos = new GridPos((int)(scrollX / bigW), (int)(scrollY / bigH), colCount, rowCount, bigW, bigH);
+                startIndex = startPos.index;
+                //根据滚动区域左下角算出结束item的二维位置
+                GridPos endPos = new GridPos((int)((scrollX + viewportSize.x) / bigW), (int)((scrollY + viewportSize.y) / bigH), colCount, rowCount, bigW, bigH);
+
+                for (int y = startPos.y; y <= endPos.y; y++)
                 {
-                    var gp = new GridPos(x, y, colCount,rowCount, bigW, bigH);
-                    if (gp.index < _itemModels.Count)
+                    for (int x = startPos.x; x <= endPos.x; x++)
                     {
-                        list.Add(gp);
-                    }
-                    else
-                    {
-                        break;
+                        var gp = new GridPos(x, y, colCount, rowCount, bigW, bigH);
+                        if (gp.index >= 0 && gp.index < _itemModels.Count)
+                        {
+                            list.Add(gp);
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
             }
@@ -288,7 +311,7 @@ namespace Jing.TurbochargedScrollList
                         colCount = _itemModels.Count;
                     }
 
-                    contentW = colCount * (itemDefaultfSize.x + gap.x) - gap.x;
+                    contentW = colCount * (itemDefaultfSize.x + gap.x) - gap.x; 
                     //确定高度,通过item总数和constraintCount算出
                     if (itemAmount > 0)
                     {
@@ -306,6 +329,10 @@ namespace Jing.TurbochargedScrollList
                     }
 
                     contentH = rowCount * (itemDefaultfSize.y + gap.y) - gap.y;
+                    if (contentH < 0)
+                    {
+                        contentH = 0;
+                    }
                     //确定宽度,通过item总数和constraintCount算出                    
                     if (itemAmount > 0)
                     {
@@ -315,7 +342,17 @@ namespace Jing.TurbochargedScrollList
 
 
                     break;
-            }            
+            }
+
+            if (contentW < 0)
+            {
+                contentW = 0;
+            }
+
+            if(contentH < 0)
+            {
+                contentH = 0;
+            }
 
             SetContentSize(contentW, contentH);
         }

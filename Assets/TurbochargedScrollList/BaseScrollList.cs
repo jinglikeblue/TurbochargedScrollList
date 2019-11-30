@@ -414,14 +414,16 @@ namespace Jing.TurbochargedScrollList
             _recycledItems.Clear();
             _showingItems.Clear();
             _itemModels.Clear();
-            int childIdx = content.childCount;
+            int childIdx = content.childCount;            
             while (--childIdx > -1)
             {
                 var item = content.GetChild(childIdx).GetComponent<ScrollListItem>();
                 item.gameObject.SetActive(false);
                 _recycledItems.Add(item);
             }
-            MarkDirty(true);            
+            MarkDirty(true);
+
+            Update();
         }
         #endregion
     }
