@@ -122,7 +122,7 @@ namespace Jing.TurbochargedScrollList
         protected void InitItem(GameObject itemPrefab, OnRenderItem itemRender)
         {                 
             this.itemPrefab = itemPrefab;
-            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().sizeDelta;
+            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().rect.size;
 
             _itemRender = itemRender;
 

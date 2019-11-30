@@ -22,6 +22,7 @@ public class GridScrollListDemo : MonoBehaviour
             datas[i] = i;
         }
 
+        //var list = new GridScrollList(GameObject.Find("Grid Scroll View"), OnRenderItem, new Vector2(10,10), EGridConstraint.FIXED_ROW_COUNT, 3);
         list.renderItem += OnRenderItem;
         list.AddRange(datas);
     }
