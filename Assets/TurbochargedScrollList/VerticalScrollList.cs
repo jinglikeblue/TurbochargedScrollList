@@ -6,6 +6,10 @@ namespace Jing.TurbochargedScrollList
 {
     public class VerticalScrollList : VerticalScrollList<object>
     {
+        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender) : base(scrollView, itemRender)
+        {
+        }
+
         public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemRender, gap)
         {
         }
@@ -33,20 +37,33 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public float gap { get; private set; }
 
+        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender)
+        {
+            InitScrollView(scrollView);
+
+            var layout = content.GetComponent<VerticalLayoutGroup>();
+            this.gap = layout.spacing;
+            GameObject.Destroy(layout);            
+
+            AutoInitItem(itemRender);             
+        }
+
         public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap = 0)
         {
+            InitScrollView(scrollView);
+
             this.gap = gap;
-            var scrollRect = scrollView.GetComponent<ScrollRect>();
-            var itemPrefab = scrollRect.content.GetChild(0);
-            itemPrefab.gameObject.SetActive(false);
-            itemPrefab.SetParent(scrollView.transform);            
-            Init(scrollView, itemPrefab.gameObject, itemRender);
+
+            AutoInitItem(itemRender);
         }
 
         public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0)
         {
+            InitScrollView(scrollView);
+
             this.gap = gap;
-            Init(scrollView, itemPrefab, itemRender);
+
+            InitItem(itemPrefab, itemRender);
         }
 
         protected override void ResizeContent(UpdateData updateConfig)

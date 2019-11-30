@@ -111,15 +111,16 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public int lastStartIndex { get; private set; }
 
-        protected void Init(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender)
+        protected void InitScrollView(GameObject scrollView)
         {
             scrollRect = scrollView.GetComponent<ScrollRect>();
 
             content = scrollRect.content;
             content.localPosition = Vector3.zero;
+        }
 
-            
-            
+        protected void InitItem(GameObject itemPrefab, OnRenderItem itemRender)
+        {                 
             this.itemPrefab = itemPrefab;
             itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().sizeDelta;
 
@@ -127,15 +128,53 @@ namespace Jing.TurbochargedScrollList
 
             scrollPos = Vector2.up;
 
-            _proxy = scrollView.GetComponent<ScrollListAdapter>();
+            _proxy = scrollRect.gameObject.GetComponent<ScrollListAdapter>();
             if (null == _proxy)
             {
-                _proxy = scrollView.AddComponent<ScrollListAdapter>();
+                _proxy = scrollRect.gameObject.AddComponent<ScrollListAdapter>();
             }
 
             //监听事件
             _proxy.onUpdate += Update;
             scrollRect.onValueChanged.AddListener(OnScroll);
+        }
+
+        /// <summary>
+        /// 自动设置列表项（从Content中找到列表项的Prefab）
+        /// </summary>
+        /// <param name="itemRender"></param>
+        protected void AutoInitItem(OnRenderItem itemRender)
+        {
+            var itemPrefab = FindItemPrefabFromContent();
+            if (null == itemPrefab)
+            {
+                throw new System.Exception("Can't Find Item Prefab From Content!!!");
+            }
+
+            InitItem(itemPrefab, itemRender);
+        }
+
+        /// <summary>
+        /// 从Content中找到列表项的prefab        
+        /// </summary>
+        /// <param name="scrollView"></param>
+        /// <returns></returns>
+        GameObject FindItemPrefabFromContent()
+        {
+            var itemTransform = content.GetChild(0);
+            if(null == itemTransform)
+            {
+                return null;       
+            }
+
+            //换个位置存放 
+            itemTransform.SetParent(scrollRect.transform);
+
+            this.itemPrefab = itemTransform.gameObject;
+
+            itemPrefab.SetActive(false);            
+            
+            return itemPrefab;
         }
 
         /// <summary>

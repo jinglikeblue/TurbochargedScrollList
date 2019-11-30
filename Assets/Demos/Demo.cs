@@ -8,6 +8,8 @@ public class Demo : MonoBehaviour
 
     public InputField inputCount;
 
+    public int itemCount = 1;
+
     int id = 0;
 
     private void Start()
@@ -17,7 +19,7 @@ public class Demo : MonoBehaviour
         Application.targetFrameRate = 60;
 #endif
 
-        var datas = new int[1000];
+        var datas = new int[itemCount];
         for(int i = 0; i < datas.Length; i++)
         {
             datas[i] = id++;

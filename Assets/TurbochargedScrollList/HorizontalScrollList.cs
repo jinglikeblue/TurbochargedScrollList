@@ -32,22 +32,35 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 列表项间距
         /// </summary>
-        public float gap { get; private set; }        
+        public float gap { get; private set; }
+
+        public HorizontalScrollList(GameObject scrollView, OnRenderItem itemRender)
+        {
+            InitScrollView(scrollView);
+
+            var layout = content.GetComponent<HorizontalLayoutGroup>();
+            this.gap = layout.spacing;
+            GameObject.Destroy(layout);
+
+            AutoInitItem(itemRender);
+        }
 
         public HorizontalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap = 0)
         {
+            InitScrollView(scrollView);
+
             this.gap = gap;
-            var scrollRect = scrollView.GetComponent<ScrollRect>();
-            var itemPrefab = scrollRect.content.GetChild(0);
-            itemPrefab.gameObject.SetActive(false);
-            itemPrefab.SetParent(scrollView.transform);
-            Init(scrollView, itemPrefab.gameObject, itemRender);
+
+            AutoInitItem(itemRender);
         }
 
         public HorizontalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) 
         {
+            InitScrollView(scrollView);
+
             this.gap = gap;
-            Init(scrollView, itemPrefab, itemRender);
+
+            InitItem(itemPrefab, itemRender);
         }
 
         protected override void ResizeContent(UpdateData updateConfig)

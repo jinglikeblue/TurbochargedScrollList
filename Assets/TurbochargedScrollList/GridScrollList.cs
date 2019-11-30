@@ -143,21 +143,17 @@ namespace Jing.TurbochargedScrollList
 
         public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
         {
+            InitScrollView(scrollView);
+
             this.gap = gap;
             this.constraint = constraint;
             this.constraintCount = constraintCount;
-
-            var scrollRect = scrollView.GetComponent<ScrollRect>();
-            var itemPrefab = scrollRect.content.GetChild(0);
-            itemPrefab.gameObject.SetActive(false);
-            itemPrefab.SetParent(scrollView.transform);
-
-            Init(scrollView, itemPrefab.gameObject, itemRender);
-
             if (EGridConstraint.FLEXIBLE == constraint)
             {
                 scrollRect.horizontal = false;
             }
+
+            AutoInitItem(itemRender);
         }
 
         public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
@@ -165,13 +161,12 @@ namespace Jing.TurbochargedScrollList
             this.gap = gap;
             this.constraint = constraint;
             this.constraintCount = constraintCount;
-
-            Init(scrollView, itemPrefab, itemRender);
-
             if (EGridConstraint.FLEXIBLE == constraint)
             {
                 scrollRect.horizontal = false;
             }
+
+            InitItem(itemPrefab, itemRender);
         }
 
         protected override bool AdjustmentItemSize(ScrollListItem item)
