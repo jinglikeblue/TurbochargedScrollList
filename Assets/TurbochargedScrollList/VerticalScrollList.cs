@@ -10,11 +10,11 @@ namespace Jing.TurbochargedScrollList
         {
         }
 
-        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemRender, gap)
+        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap) : base(scrollView, itemRender, gap)
         {
         }
 
-        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0) : base(scrollView, itemPrefab, itemRender, gap)
+        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap) : base(scrollView, itemPrefab, itemRender, gap)
         {
         }
 
@@ -48,7 +48,7 @@ namespace Jing.TurbochargedScrollList
             AutoInitItem(itemRender);             
         }
 
-        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap = 0)
+        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap)
         {
             InitScrollView(scrollView);
 
@@ -57,7 +57,7 @@ namespace Jing.TurbochargedScrollList
             AutoInitItem(itemRender);
         }
 
-        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap = 0)
+        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap)
         {
             InitScrollView(scrollView);
 

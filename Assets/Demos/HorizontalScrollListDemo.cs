@@ -1,15 +1,15 @@
-﻿using System;
-using Jing.TurbochargedScrollList;
+﻿using Jing.TurbochargedScrollList;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class VerticalScrollListDemo : MonoBehaviour
+public class HorizontalScrollListDemo : MonoBehaviour
 {
     public int itemCount = 1;
 
     public GameObject scrollView;
 
-    VerticalScrollList<int> _list;
+    HorizontalScrollList _list;
 
     void Start()
     {
@@ -23,11 +23,11 @@ public class VerticalScrollListDemo : MonoBehaviour
             datas[i] = i;
         }
 
-        _list = new VerticalScrollList<int>(scrollView, OnItemRender);
-        _list.AddRange(datas);
+        _list = new HorizontalScrollList(scrollView, OnItemRender, 10);
+        _list.AddRange<int>(datas);
     }
 
-    private void OnItemRender(ScrollListItem item, int data)
+    private void OnItemRender(ScrollListItem item, object data)
     {
         Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
     }
