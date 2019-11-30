@@ -365,8 +365,6 @@ namespace Jing.TurbochargedScrollList
                         colCount = (itemAmount - 1) / rowCount + 1;
                         contentW = colCount * _bigW - gap.x;
                     }
-
-
                     break;
             }
 
