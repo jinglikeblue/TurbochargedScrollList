@@ -177,13 +177,19 @@ namespace Jing.TurbochargedScrollList
 
         public override void ScrollToItem(int index)
         {
-            float pos = 0;
-            if (index >= 0 && index < _itemModels.Count)
+            if (index < 0)
             {
-                for (int i = 0; i < index; i++)
-                {
-                    pos += (_itemModels[i].width + gap);
-                }
+                index = 0;
+            }
+            else if (index >= _itemModels.Count)
+            {
+                index = _itemModels.Count - 1;
+            }
+
+            float pos = 0;
+            for (int i = 0; i < index; i++)
+            {
+                pos += (_itemModels[i].width + gap);
             }
 
             ScrollToPosition(pos);
@@ -191,6 +197,16 @@ namespace Jing.TurbochargedScrollList
 
         public void ScrollToPosition(float position)
         {
+            if (position > ContentWidth - viewportSize.x)
+            {
+                position = ContentWidth - viewportSize.x;
+            }
+
+            if (position < 0)
+            {
+                position = 0;
+            }
+
             ScrollToPosition(new Vector2(position, 0));
         }
     }

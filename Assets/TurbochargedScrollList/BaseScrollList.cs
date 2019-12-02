@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -80,6 +81,14 @@ namespace Jing.TurbochargedScrollList
 
         public Vector2 itemDefaultfSize { get; private set; }
 
+        public int ItemCount
+        {
+            get
+            {
+                return _itemModels.Count;
+            }
+        }
+
         /// <summary>
         /// 显示内容宽度
         /// </summary>
@@ -117,6 +126,16 @@ namespace Jing.TurbochargedScrollList
         OnRenderItem _itemRender;
 
         public event OnItemBeforeReuse onItemBeforeReuse;
+
+        /// <summary>
+        /// 重构内容的事件
+        /// </summary>
+        public Action onRebuildContent;
+
+        /// <summary>
+        /// 刷新的事件
+        /// </summary>
+        public Action onRefresh;
 
         /// <summary>
         /// 内容容器滚动位置
@@ -274,6 +293,7 @@ namespace Jing.TurbochargedScrollList
             {
                 updateConfig.tempLastContentRect = content.rect;
                 ResizeContent(updateConfig);
+                onRebuildContent?.Invoke();
             }
 
             if (updateConfig.isRefresh)
@@ -281,6 +301,7 @@ namespace Jing.TurbochargedScrollList
                 int lastStartIndex;
                 Refresh(updateConfig, out lastStartIndex);
                 this.lastStartIndex = lastStartIndex;
+                onRefresh?.Invoke();
             }
 
             CheckItemsSize();
@@ -418,10 +439,10 @@ namespace Jing.TurbochargedScrollList
         /// 滚动列表到指定位置
         /// </summary>
         /// <param name="position"></param>
-        public void ScrollToPosition(Vector2 position)
+        public virtual void ScrollToPosition(Vector2 position)
         {
             content.localPosition = new Vector3(-position.x, position.y, 0);
-            OnScroll(position);
+            OnScroll(position);            
         }
 
 

@@ -13,6 +13,30 @@ namespace Jing.TurbochargedScrollList
 
         protected BaseScrollList<object> list;
 
+        public float ContentWidth
+        {
+            get
+            {
+                return list.ContentWidth;
+            }
+        }
+
+        public float ContentHeight
+        {
+            get
+            {
+                return list.ContentHeight;
+            }
+        }
+
+        public int ItemCount
+        {
+            get
+            {
+                return list.ItemCount;
+            }
+        }
+
         public event Action<ScrollListItem, object> renderItem;
 
         protected void ItemRender(ScrollListItem item, object data)
@@ -58,6 +82,16 @@ namespace Jing.TurbochargedScrollList
         public bool Remove(object data)
         {
             return list.Remove(data);
+        }
+
+        public void ScrollToItem(int index)
+        {
+            list.ScrollToItem(index);
+        }
+
+        public void ScrollToPosition(Vector2 position)
+        {
+            list.ScrollToPosition(position);
         }
     }
 

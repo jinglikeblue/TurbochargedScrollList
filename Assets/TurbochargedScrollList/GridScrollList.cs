@@ -45,15 +45,6 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
-        public void ChangePos(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-            this.pixelX = x * _gridW;
-            this.pixelY = y * _gridH;
-            this.index = y * _gridColCount + x;
-        }
-
         /// <summary>
         /// 将index在x、y轴上的位置
         /// </summary>
@@ -405,11 +396,52 @@ namespace Jing.TurbochargedScrollList
             }
 
             SetContentSize(contentW, contentH);
-        }
+        }        
 
         public override void ScrollToItem(int index)
         {
-            
+            bool isColByCol = constraint == EGridConstraint.FIXED_ROW_COUNT ? true : false;
+            GridPos gridPos;
+            if (isColByCol)
+            {
+                int x = index / rowCount;
+                int y = index % rowCount;                
+                gridPos = new GridPos(x, y, colCount, rowCount, _bigW, _bigH);
+                gridPos.AxisFlip();
+            }
+            else
+            {
+                int x = index % colCount;
+                int y = index / colCount;
+                gridPos = new GridPos(x, y, colCount, rowCount, _bigW, _bigH);
+            }            
+
+            ScrollToPosition(gridPos.pixelX, gridPos.pixelY);
+        }
+
+        public void ScrollToPosition(float x, float y)
+        {
+            if (x > ContentWidth - viewportSize.x)
+            {
+                x = ContentWidth - viewportSize.x;
+            }
+
+            if (x < 0)
+            {
+                x = 0;
+            }
+
+            if (y > ContentHeight - viewportSize.y)
+            {
+                y = ContentHeight - viewportSize.y;
+            }
+
+            if (y < 0)
+            {
+                y = 0;
+            }            
+
+            ScrollToPosition(new Vector2(x, y));
         }
     }
 }

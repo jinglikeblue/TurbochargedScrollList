@@ -175,21 +175,37 @@ namespace Jing.TurbochargedScrollList
         }
 
         public override void ScrollToItem(int index)
-        {
-            float pos = 0;
-            if (index >= 0 && index < _itemModels.Count)
+        {          
+            if (index < 0)
             {
-                for (int i = 0; i < index; i++)
-                {
-                    pos += (_itemModels[i].height + gap);
-                }
-            }            
+                index = 0;
+            }
+            else if(index >= _itemModels.Count)
+            {
+                index = _itemModels.Count - 1;
+            }
+
+            float pos = 0;
+            for (int i = 0; i < index; i++)
+            {
+                pos += (_itemModels[i].height + gap);
+            }
 
             ScrollToPosition(pos);
         }
 
         public void ScrollToPosition(float position)
         {
+            if (position > ContentHeight - viewportSize.y)
+            {
+                position = ContentHeight - viewportSize.y;
+            }
+
+            if (position < 0)
+            {
+                position = 0;
+            }
+
             ScrollToPosition(new Vector2(0, position));
         }
     }

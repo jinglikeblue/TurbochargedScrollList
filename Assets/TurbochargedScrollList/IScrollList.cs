@@ -44,5 +44,21 @@ namespace Jing.TurbochargedScrollList
         /// 清空列表，实际上是将数据清除，并将对象放入对象池
         /// </summary>
         void Clear();
+
+        /// <summary>
+        /// 列表项数量
+        /// </summary>
+        int ItemCount { get; }
+
+        /// <summary>
+        /// 显示内容宽度
+        /// </summary>
+        float ContentWidth { get; }
+
+        /// <summary>
+        /// 显示内容高度
+        /// </summary>
+        float ContentHeight { get; }
+        
     }
 }
