@@ -69,7 +69,7 @@ public class VerticalScrollListDemo : MonoBehaviour
 
     private void MoveToBottom()
     {
-        list.ScrollToPosition(list.ContentHeight);
+        //list.ScrollToPosition(list.ContentHeight);
     }
 
     private void OnItemRender(ScrollListItem item, int data)

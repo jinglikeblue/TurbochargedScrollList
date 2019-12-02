@@ -359,7 +359,7 @@ namespace Jing.TurbochargedScrollList
         protected ScrollListItem CreateItem(ScrollListItemModel<TData> model, int dataIdx, Dictionary<ScrollListItemModel<TData>, ScrollListItem> lastShowingItems)
         {
             ScrollListItem item;
-            if (lastShowingItems.ContainsKey(model)) //本来就在显示列表中，直接返回
+            if (lastShowingItems.ContainsKey(model) && lastShowingItems[model].index == dataIdx) //本来就在显示列表中，直接返回
             {
                 item = lastShowingItems[model];
                 lastShowingItems.Remove(model);
