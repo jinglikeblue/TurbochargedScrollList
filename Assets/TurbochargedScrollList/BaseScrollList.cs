@@ -7,7 +7,7 @@ namespace Jing.TurbochargedScrollList
     /// <summary>
     /// 基于UGUI中Scroll View组件的列表工具
     /// </summary>
-    public abstract class BaseScrollList<TData>: IScrollList<TData>
+    public abstract class BaseScrollList<TData> : IScrollList<TData>
     {
         public enum EKeepPaddingType
         {
@@ -62,6 +62,11 @@ namespace Jing.TurbochargedScrollList
 
         protected UpdateData _updateData;
 
+        /// <summary>
+        /// 列表项被复用前的委托
+        /// </summary>
+        /// <param name="item"></param>
+        public delegate void OnItemBeforeReuse(ScrollListItem item);
 
         public delegate void OnRenderItem(ScrollListItem item, TData data);
 
@@ -76,11 +81,33 @@ namespace Jing.TurbochargedScrollList
         public Vector2 itemDefaultfSize { get; private set; }
 
         /// <summary>
+        /// 显示内容宽度
+        /// </summary>
+        public float ContentWidth
+        {
+            get
+            {
+                return content.rect.width;
+            }
+        }
+
+        /// <summary>
+        /// 显示内容高度
+        /// </summary>
+        public float ContentHeight
+        {
+            get
+            {
+                return content.rect.height;
+            }
+        }
+
+        /// <summary>
         /// 视口大小
         /// </summary>
         public Vector2 viewportSize { get; private set; }
 
-        public Vector2 scrollPos { get; protected set; }        
+        public Vector2 scrollPos { get; protected set; }
 
         /// <summary>
         /// 列表项数据
@@ -89,10 +116,12 @@ namespace Jing.TurbochargedScrollList
 
         OnRenderItem _itemRender;
 
+        public event OnItemBeforeReuse onItemBeforeReuse;
+
         /// <summary>
         /// 内容容器滚动位置
         /// </summary>
-        public float contentRenderStartPos { get; protected set; }               
+        public float contentRenderStartPos { get; protected set; }
 
         /// <summary>
         /// 当前显示的Item表(key: 数据索引)
@@ -120,7 +149,7 @@ namespace Jing.TurbochargedScrollList
         }
 
         protected void InitItem(GameObject itemPrefab, OnRenderItem itemRender)
-        {                 
+        {
             this.itemPrefab = itemPrefab;
             itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().rect.size;
 
@@ -162,9 +191,9 @@ namespace Jing.TurbochargedScrollList
         GameObject FindItemPrefabFromContent()
         {
             var itemTransform = content.GetChild(0);
-            if(null == itemTransform)
+            if (null == itemTransform)
             {
-                return null;       
+                return null;
             }
 
             //换个位置存放 
@@ -172,8 +201,8 @@ namespace Jing.TurbochargedScrollList
 
             this.itemPrefab = itemTransform.gameObject;
 
-            itemPrefab.SetActive(false);            
-            
+            itemPrefab.SetActive(false);
+
             return itemPrefab;
         }
 
@@ -185,7 +214,7 @@ namespace Jing.TurbochargedScrollList
             if (false == viewportSize.Equals(scrollRect.viewport.rect.size))
             {
                 viewportSize = scrollRect.viewport.rect.size;
-            }                  
+            }
         }
 
         protected void RenderItem(ScrollListItem item, TData data)
@@ -199,16 +228,16 @@ namespace Jing.TurbochargedScrollList
         public TData[] GetDatasCopy()
         {
             TData[] datas = new TData[_itemModels.Count];
-            for(int i = 0; i < _itemModels.Count; i++)
+            for (int i = 0; i < _itemModels.Count; i++)
             {
                 datas[i] = _itemModels[i].data;
             }
 
             return datas;
-        }        
+        }
 
         private void OnScroll(Vector2 v)
-        {            
+        {
             MarkDirty();
         }
 
@@ -229,7 +258,7 @@ namespace Jing.TurbochargedScrollList
         void Update()
         {
             var updateConfig = _updateData;
-            _updateData.Reset();           
+            _updateData.Reset();
 
             UpdateViewportSize();
 
@@ -239,29 +268,29 @@ namespace Jing.TurbochargedScrollList
                 //Debug.Log("还没初始化完成，刷新延迟");
                 MarkDirty(true);
                 return;
-            }                        
+            }
 
             if (updateConfig.isResizeContent)
-            {                
+            {
                 updateConfig.tempLastContentRect = content.rect;
-                ResizeContent(updateConfig);                
+                ResizeContent(updateConfig);
             }
 
             if (updateConfig.isRefresh)
-            {                
+            {
                 int lastStartIndex;
                 Refresh(updateConfig, out lastStartIndex);
                 this.lastStartIndex = lastStartIndex;
             }
 
-            CheckItemsSize();            
+            CheckItemsSize();
         }
 
         /// <summary>
         /// 检查每一个现实中的item的大小
         /// </summary>
         protected void CheckItemsSize()
-        {           
+        {
             foreach (var item in _showingItems.Values)
             {
                 if (AdjustmentItemSize(item))
@@ -279,7 +308,7 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 刷新列表
         /// </summary>
-        protected abstract void Refresh(UpdateData updateConfig, out int lastStartIndex);      
+        protected abstract void Refresh(UpdateData updateConfig, out int lastStartIndex);
 
         /// <summary>
         /// 检测并校正item的大小，如果进行了校正，返回true
@@ -309,10 +338,10 @@ namespace Jing.TurbochargedScrollList
         protected ScrollListItem CreateItem(ScrollListItemModel<TData> model, int dataIdx, Dictionary<ScrollListItemModel<TData>, ScrollListItem> lastShowingItems)
         {
             ScrollListItem item;
-            if (lastShowingItems.ContainsKey(model))
+            if (lastShowingItems.ContainsKey(model)) //本来就在显示列表中，直接返回
             {
                 item = lastShowingItems[model];
-                lastShowingItems.Remove(model);                
+                lastShowingItems.Remove(model);
             }
             else
             {
@@ -324,9 +353,8 @@ namespace Jing.TurbochargedScrollList
                     while (--idx > -1)
                     {
                         tempItem = _recycledItems[idx];
-                        if (tempItem.index == dataIdx && tempItem.data.Equals(model.data))
+                        if (tempItem.index == dataIdx && tempItem.data.Equals(model.data)) //以前回收的一个对象，刚好对应的数据一致，直接返回
                         {
-                            //以前回收的一个对象，刚好对应的数据一致
                             item = tempItem;
                             _recycledItems.RemoveAt(idx);
                             item.gameObject.SetActive(true);
@@ -337,6 +365,9 @@ namespace Jing.TurbochargedScrollList
                     //没有绝对匹配的，则抽取最后找到的item，之后刷新数据并返回
                     item = tempItem;
                     _recycledItems.Remove(tempItem);
+
+                    //当一个列表项，将被复用时触发
+                    onItemBeforeReuse?.Invoke(item);
                 }
                 else
                 {
@@ -377,10 +408,27 @@ namespace Jing.TurbochargedScrollList
             return item;
         }
 
+        /// <summary>
+        /// 滚动列表到列表项
+        /// </summary>
+        /// <param name="index"></param>
+        public abstract void ScrollToItem(int index);
+
+        /// <summary>
+        /// 滚动列表到指定位置
+        /// </summary>
+        /// <param name="position"></param>
+        public void ScrollToPosition(Vector2 position)
+        {
+            content.localPosition = new Vector3(-position.x, position.y, 0);
+            OnScroll(position);
+        }
+
+
 
         #region 数据操作
         public virtual void AddRange(IEnumerable<TData> collection)
-        {                              
+        {
             foreach (var data in collection)
             {
                 Add(data);
@@ -399,13 +447,13 @@ namespace Jing.TurbochargedScrollList
             var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
             _itemModels.Insert(index, model);
             if (index <= lastStartIndex)
-            {                
+            {
                 MarkDirty(true, EKeepPaddingType.END);
             }
             else
             {
                 MarkDirty(true);
-            }            
+            }
         }
 
         /// <summary>
@@ -415,9 +463,9 @@ namespace Jing.TurbochargedScrollList
         /// <returns></returns>
         public virtual bool Remove(TData data)
         {
-            for(int i = 0;i < _itemModels.Count; i++)
+            for (int i = 0; i < _itemModels.Count; i++)
             {
-                if(_itemModels[i].data.Equals(data))
+                if (_itemModels[i].data.Equals(data))
                 {
                     RemoveAt(i);
                     return true;
@@ -453,14 +501,14 @@ namespace Jing.TurbochargedScrollList
             _recycledItems.Clear();
             _showingItems.Clear();
             _itemModels.Clear();
-            int childIdx = content.childCount;            
+            int childIdx = content.childCount;
             while (--childIdx > -1)
             {
                 var item = content.GetChild(childIdx).GetComponent<ScrollListItem>();
                 item.gameObject.SetActive(false);
                 _recycledItems.Add(item);
             }
-            MarkDirty(true);            
+            MarkDirty(true);
         }
         #endregion
     }

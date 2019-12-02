@@ -406,5 +406,10 @@ namespace Jing.TurbochargedScrollList
 
             SetContentSize(contentW, contentH);
         }
+
+        public override void ScrollToItem(int index)
+        {
+            
+        }
     }
 }
