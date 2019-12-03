@@ -38,6 +38,9 @@ namespace Jing.TurbochargedScrollList
         }
 
         public event Action<ScrollListItem, object, bool> renderItem;
+        public event Action onRebuildContent;
+        public event Action onRefresh;
+        public event OnItemBeforeReuse onItemBeforeReuse;
 
         protected void ItemRender(ScrollListItem item, object data, bool isFresh)
         {
@@ -97,6 +100,11 @@ namespace Jing.TurbochargedScrollList
         public bool CheckItemShowing(int index)
         {
             return list.CheckItemShowing(index);
+        }
+
+        public Vector2 GetDistanceToEnd()
+        {
+            return list.GetDistanceToEnd();
         }
     }
 

@@ -6,10 +6,24 @@ using UnityEngine.UI;
 namespace Jing.TurbochargedScrollList
 {
     /// <summary>
+    /// 列表项被复用前的委托
+    /// </summary>
+    /// <param name="item"></param>
+    public delegate void OnItemBeforeReuse(ScrollListItem item);
+
+    /// <summary>
     /// 基于UGUI中Scroll View组件的列表工具
     /// </summary>
     public abstract class BaseScrollList<TData> : IScrollList<TData>
     {
+        /// <summary>
+        /// 渲染列表项的委托
+        /// </summary>
+        /// <param name="item">列表项</param>
+        /// <param name="data">列表项对应的数据</param>
+        /// <param name="isFresh">如果为true, 则item的数据或index产生了改变。如果为false，则仅仅是Active从false变为了true</param>
+        public delegate void OnRenderItem(ScrollListItem item, TData data, bool isFresh);
+
         public enum EKeepPaddingType
         {
             /// <summary>
@@ -62,20 +76,6 @@ namespace Jing.TurbochargedScrollList
         }
 
         protected UpdateData _updateData;
-
-        /// <summary>
-        /// 列表项被复用前的委托
-        /// </summary>
-        /// <param name="item"></param>
-        public delegate void OnItemBeforeReuse(ScrollListItem item);
-
-        /// <summary>
-        /// 渲染列表项的委托
-        /// </summary>
-        /// <param name="item">列表项</param>
-        /// <param name="data">列表项对应的数据</param>
-        /// <param name="isFresh">如果为true, 则item的数据或index产生了改变。如果为false，则仅仅是Active从false变为了true</param>
-        public delegate void OnRenderItem(ScrollListItem item, TData data, bool isFresh);
 
         public ScrollRect scrollRect { get; private set; }
 

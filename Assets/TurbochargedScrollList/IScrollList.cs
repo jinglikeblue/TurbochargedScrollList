@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Jing.TurbochargedScrollList
 {
@@ -66,5 +68,37 @@ namespace Jing.TurbochargedScrollList
         /// <param name="index">列表项索引</param>
         /// <returns></returns>
         bool CheckItemShowing(int index);
+
+        /// <summary>
+        /// 滚动列表到列表项
+        /// </summary>
+        /// <param name="index">列表项索引</param>
+        void ScrollToItem(int index);
+
+        /// <summary>
+        /// 滚动列表到指定位置
+        /// </summary>
+        /// <param name="position">目标像素位置</param>
+        void ScrollToPosition(Vector2 position);
+
+        /// <summary>
+        /// 重构内容的事件
+        /// </summary>
+        event Action onRebuildContent;
+
+        /// <summary>
+        /// 刷新的事件
+        /// </summary>
+        event Action onRefresh;
+
+        /// <summary>
+        /// 当一个列表项被复用时触发
+        /// </summary>
+        event OnItemBeforeReuse onItemBeforeReuse;
+
+        /// <summary>
+        /// 距离列表末尾的距离
+        /// </summary>
+        Vector2 GetDistanceToEnd();
     }
 }

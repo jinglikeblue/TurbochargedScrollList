@@ -44,7 +44,7 @@ public class GridScrollListDemo : MonoBehaviour
 
         var btnScroll2Index = GameObject.Find("BtnScroll2Index").GetComponent<Button>();
         btnScroll2Index.onClick.AddListener(() => {
-            list.ScrollToItem(20);
+            list.ScrollToItem(4);
         });
 
         var btnScroll2End = GameObject.Find("BtnScroll2End").GetComponent<Button>();
