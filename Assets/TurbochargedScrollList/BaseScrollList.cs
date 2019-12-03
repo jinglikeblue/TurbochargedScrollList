@@ -448,6 +448,28 @@ namespace Jing.TurbochargedScrollList
         /// <param name="position"></param>
         public virtual void ScrollToPosition(Vector2 position)
         {
+
+            if (position.x > ContentWidth - viewportSize.x)
+            {
+                position.x = ContentWidth - viewportSize.x;
+            }
+
+            if (position.x < 0)
+            {
+                position.x = 0;
+            }
+
+            if (position.y > ContentHeight - viewportSize.y)
+            {
+                position.y = ContentHeight - viewportSize.y;
+            }
+
+            if (position.y < 0)
+            {
+                position.y = 0;
+            }
+
+
             content.localPosition = new Vector3(-position.x, position.y, 0);
             OnScroll(position);            
         }

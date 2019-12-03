@@ -420,27 +420,7 @@ namespace Jing.TurbochargedScrollList
         }
 
         public void ScrollToPosition(float x, float y)
-        {
-            if (x > ContentWidth - viewportSize.x)
-            {
-                x = ContentWidth - viewportSize.x;
-            }
-
-            if (x < 0)
-            {
-                x = 0;
-            }
-
-            if (y > ContentHeight - viewportSize.y)
-            {
-                y = ContentHeight - viewportSize.y;
-            }
-
-            if (y < 0)
-            {
-                y = 0;
-            }            
-
+        {    
             ScrollToPosition(new Vector2(x, y));
         }
     }
