@@ -59,6 +59,12 @@ namespace Jing.TurbochargedScrollList
         /// 显示内容高度
         /// </summary>
         float ContentHeight { get; }
-        
+
+        /// <summary>
+        /// 检查指定的列表项是否在显示列表中
+        /// </summary>
+        /// <param name="index">列表项索引</param>
+        /// <returns></returns>
+        bool CheckItemShowing(int index);
     }
 }

@@ -37,11 +37,11 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
-        public event Action<ScrollListItem, object> renderItem;
+        public event Action<ScrollListItem, object, bool> renderItem;
 
-        protected void ItemRender(ScrollListItem item, object data)
+        protected void ItemRender(ScrollListItem item, object data, bool isFresh)
         {
-            renderItem?.Invoke(item, data);
+            renderItem?.Invoke(item, data, isFresh);
         }
 
         public void Clear()
@@ -92,6 +92,11 @@ namespace Jing.TurbochargedScrollList
         public void ScrollToPosition(Vector2 position)
         {
             list.ScrollToPosition(position);
+        }
+
+        public bool CheckItemShowing(int index)
+        {
+            return list.CheckItemShowing(index);
         }
     }
 

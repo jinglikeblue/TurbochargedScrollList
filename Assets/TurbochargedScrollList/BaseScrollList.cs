@@ -69,7 +69,13 @@ namespace Jing.TurbochargedScrollList
         /// <param name="item"></param>
         public delegate void OnItemBeforeReuse(ScrollListItem item);
 
-        public delegate void OnRenderItem(ScrollListItem item, TData data);
+        /// <summary>
+        /// 渲染列表项的委托
+        /// </summary>
+        /// <param name="item">列表项</param>
+        /// <param name="data">列表项对应的数据</param>
+        /// <param name="isFresh">如果为true, 则item的数据或index产生了改变。如果为false，则仅仅是Active从false变为了true</param>
+        public delegate void OnRenderItem(ScrollListItem item, TData data, bool isFresh);
 
         public ScrollRect scrollRect { get; private set; }
 
@@ -130,12 +136,12 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 重构内容的事件
         /// </summary>
-        public Action onRebuildContent;
+        public event Action onRebuildContent;
 
         /// <summary>
         /// 刷新的事件
         /// </summary>
-        public Action onRefresh;
+        public event Action onRefresh;
 
         /// <summary>
         /// 内容容器滚动位置
@@ -236,9 +242,9 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
-        protected void RenderItem(ScrollListItem item, TData data)
+        protected void RenderItem(ScrollListItem item, TData data, bool isOnlySwitchActive)
         {
-            _itemRender.Invoke(item, data);
+            _itemRender.Invoke(item, data, isOnlySwitchActive);
         }
 
         /// <summary>
@@ -379,6 +385,7 @@ namespace Jing.TurbochargedScrollList
                             item = tempItem;
                             _recycledItems.RemoveAt(idx);
                             item.gameObject.SetActive(true);
+                            RenderItem(item, model.data, false);
                             return item;
                         }
                     }
@@ -417,7 +424,7 @@ namespace Jing.TurbochargedScrollList
                     item.gameObject.SetActive(true);
                 }
 
-                RenderItem(item, model.data);
+                RenderItem(item, model.data, true);
             }
 
             if (item.index != dataIdx)
@@ -445,11 +452,62 @@ namespace Jing.TurbochargedScrollList
             OnScroll(position);            
         }
 
+        /// <summary>
+        /// 距离列表末尾的距离
+        /// </summary>
+        public Vector2 GetDistanceToEnd()
+        {
+            Vector2 distance;
+
+            var maxX = content.rect.width - viewportSize.x;
+            var posX = content.localPosition.x;
+            if(posX > 0)
+            {
+                posX = 0;
+            }
+            distance.x = maxX + posX;
+            if(distance.x < 0)
+            {
+                distance.x = 0;
+            }
+
+            var maxY = content.rect.height - viewportSize.y;
+            var posY = content.localPosition.y;
+            if (posY < 0)
+            {
+                posY = 0;
+            }
+            distance.y = maxY - posY;
+            if (distance.y < 0)
+            {
+                distance.y = 0;
+            }
+
+            return distance;
+        }
+
+
+        /// <summary>
+        /// 检查指定的列表项是否在显示列表中
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public bool CheckItemShowing(int index)
+        {
+            foreach(var item in _showingItems.Values)
+            {
+                if(item.index == index)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
 
         #region 数据操作
         public virtual void AddRange(IEnumerable<TData> collection)
-        {
+        {            
             foreach (var data in collection)
             {
                 Add(data);
