@@ -22,7 +22,7 @@ namespace Jing.TurbochargedScrollList
 
         private void Awake()
         {
-            list = new GridScrollList(gameObject, itemPrefab, ItemRender, gap, constraint, constraintCount);
+            list = new GridScrollList(gameObject, itemPrefab, ItemRender, gap, constraint, constraintCount);            
         }
 
         public void ScrollToPosition(float x, float y)

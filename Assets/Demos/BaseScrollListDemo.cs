@@ -84,11 +84,13 @@ public abstract class BaseScrollListDemo : MonoBehaviour
 #if !UNITY_EDITOR
         Application.targetFrameRate = 60;
 #endif
+
+        InitItems();
     }
 
     void OnEnable()
     {
-        InitItems();
+        
     }
 
     protected abstract void InitItems();

@@ -1110,8 +1110,8 @@ MonoBehaviour:
   itemPrefab: {fileID: 2868811791433138087, guid: d0eb7f73a53a10643ab1ad801a35ebf3,
     type: 3}
   gap: {x: 10, y: 10}
-  constraint: 2
-  constraintCount: 3
+  constraint: 1
+  constraintCount: 10
 --- !u!1001 &3712598920125287845
 PrefabInstance:
   m_ObjectHideFlags: 0

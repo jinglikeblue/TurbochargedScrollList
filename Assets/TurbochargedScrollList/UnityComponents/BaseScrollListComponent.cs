@@ -11,7 +11,32 @@ namespace Jing.TurbochargedScrollList
     {
         public GameObject itemPrefab;
 
-        protected BaseScrollList<object> list;
+        BaseScrollList<object> _list;
+
+        protected BaseScrollList<object> list
+        {
+            get
+            {
+                return _list;
+            }
+
+            set
+            {
+                _list = value;
+                _list.onRebuildContent += OnRebuildContent;
+                _list.onRefresh += OnRefresh;
+            }
+        }
+
+        private void OnRefresh()
+        {
+            onRefresh?.Invoke();
+        }
+
+        private void OnRebuildContent()
+        {
+            onRebuildContent?.Invoke();
+        }
 
         public float ContentWidth
         {
@@ -54,12 +79,12 @@ namespace Jing.TurbochargedScrollList
 
         public void AddRange<T>(IEnumerable<T> collection)
         {
-            List<object> list = new List<object>();
+            List<object> datas = new List<object>();
             foreach(var temp in collection)
             {
-                list.Add(temp);
+                datas.Add(temp);
             }
-            AddRange(list);
+            AddRange(datas);
         }
 
         public void Add(object data)
