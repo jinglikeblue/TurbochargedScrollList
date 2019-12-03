@@ -19,8 +19,12 @@ public class GridScrollListDemo : MonoBehaviour
         });
 
         var btnAdd = GameObject.Find("BtnAdd").GetComponent<Button>();
+        var input = GameObject.Find("InputNumber").GetComponent<InputField>();
         btnAdd.onClick.AddListener(() => {
-            list.Add(0);
+            int count = 0;
+            int.TryParse(input.text, out count);
+            var datas = new int[count];
+            list.AddRange(datas);
         });
 
         var btnInsert = GameObject.Find("BtnInsert").GetComponent<Button>();
@@ -67,7 +71,7 @@ public class GridScrollListDemo : MonoBehaviour
         list.AddRange(datas);
     }
 
-    private void OnRenderItem(ScrollListItem item, object data)
+    private void OnRenderItem(ScrollListItem item, object data, bool isFresh)
     {
         item.GetComponent<Item>().Refresh();
         Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
