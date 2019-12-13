@@ -9,21 +9,21 @@ namespace Jing.TurbochargedScrollList
     /// 列表项被复用前的委托
     /// </summary>
     /// <param name="item"></param>
-    public delegate void OnItemBeforeReuse(ScrollListItem item);
+    public delegate void ItemBeforeReuseDelegate(ScrollListItem item);
+
+    /// <summary>
+    /// 渲染列表项的委托
+    /// </summary>
+    /// <param name="item">列表项</param>
+    /// <param name="data">列表项对应的数据</param>
+    /// <param name="isFresh">如果为true, 则item的数据或index产生了改变。如果为false，则仅仅是Active从false变为了true</param>
+    public delegate void RenderItemDelegate(ScrollListItem item, object data, bool isFresh);
 
     /// <summary>
     /// 基于UGUI中Scroll View组件的列表工具
     /// </summary>
-    public abstract class BaseScrollList<TData> : IScrollList<TData>
-    {
-        /// <summary>
-        /// 渲染列表项的委托
-        /// </summary>
-        /// <param name="item">列表项</param>
-        /// <param name="data">列表项对应的数据</param>
-        /// <param name="isFresh">如果为true, 则item的数据或index产生了改变。如果为false，则仅仅是Active从false变为了true</param>
-        public delegate void OnRenderItem(ScrollListItem item, TData data, bool isFresh);
-
+    public abstract class BaseScrollList : IScrollList
+    {       
         public enum EKeepPaddingType
         {
             /// <summary>
@@ -74,11 +74,6 @@ namespace Jing.TurbochargedScrollList
                 keepPaddingType = EKeepPaddingType.NONE;
             }
         }
-
-        /// <summary>
-        /// 列表边距
-        /// </summary>
-        protected BaseLayoutSettings layoutSettings { get; private set; }
 
         protected UpdateData _updateData;
 
@@ -138,11 +133,17 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 列表项数据
         /// </summary>
-        protected readonly List<ScrollListItemModel<TData>> _itemModels = new List<ScrollListItemModel<TData>>();
+        protected readonly List<ScrollListItemModel> _itemModels = new List<ScrollListItemModel>();
 
-        OnRenderItem _itemRender;
+        /// <summary>
+        /// 列表项将被复用前的实践
+        /// </summary>
+        public event ItemBeforeReuseDelegate onItemBeforeReuse;
 
-        public event OnItemBeforeReuse onItemBeforeReuse;
+        /// <summary>
+        /// 列表项被渲染的事件
+        /// </summary>
+        public event RenderItemDelegate onRenderItem;
 
         /// <summary>
         /// 重构内容的事件
@@ -162,7 +163,7 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 当前显示的Item表(key: 数据索引)
         /// </summary>
-        protected readonly Dictionary<ScrollListItemModel<TData>, ScrollListItem> _showingItems = new Dictionary<ScrollListItemModel<TData>, ScrollListItem>();
+        protected readonly Dictionary<ScrollListItemModel, ScrollListItem> _showingItems = new Dictionary<ScrollListItemModel, ScrollListItem>();
 
         /// <summary>
         /// 回收列表项
@@ -184,17 +185,10 @@ namespace Jing.TurbochargedScrollList
             content.localPosition = Vector3.zero;
         }
 
-        protected void InitLayoutSettings(BaseLayoutSettings ls)
-        {
-            layoutSettings = ls;
-        }
-
-        protected void InitItem(GameObject itemPrefab, OnRenderItem itemRender)
+        protected void InitItem(GameObject itemPrefab)
         {
             this.itemPrefab = itemPrefab;
-            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().rect.size;
-
-            _itemRender = itemRender;
+            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().rect.size;            
 
             scrollPos = Vector2.up;
 
@@ -207,21 +201,6 @@ namespace Jing.TurbochargedScrollList
             //监听事件
             _proxy.onUpdate += Update;
             scrollRect.onValueChanged.AddListener(OnScroll);
-        }
-
-        /// <summary>
-        /// 自动设置列表项（从Content中找到列表项的Prefab）
-        /// </summary>
-        /// <param name="itemRender"></param>
-        protected void AutoInitItem(OnRenderItem itemRender)
-        {
-            var itemPrefab = FindItemPrefabFromContent();
-            if (null == itemPrefab)
-            {
-                throw new System.Exception("Can't Find Item Prefab From Content!!!");
-            }
-
-            InitItem(itemPrefab, itemRender);
         }
 
         /// <summary>
@@ -258,20 +237,20 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
-        protected void RenderItem(ScrollListItem item, TData data, bool isOnlySwitchActive)
+        protected void RenderItem(ScrollListItem item, object data, bool isOnlySwitchActive)
         {
-            _itemRender.Invoke(item, data, isOnlySwitchActive);
+            onRenderItem?.Invoke(item, data, isOnlySwitchActive);
         }
 
         /// <summary>
         /// 获取数据拷贝
         /// </summary>
-        public TData[] GetDatasCopy()
+        public T[] GetDatasCopy<T>()
         {
-            TData[] datas = new TData[_itemModels.Count];
+            T[] datas = new T[_itemModels.Count];
             for (int i = 0; i < _itemModels.Count; i++)
             {
-                datas[i] = _itemModels[i].data;
+                datas[i] = (T)_itemModels[i].data;
             }
 
             return datas;
@@ -378,7 +357,7 @@ namespace Jing.TurbochargedScrollList
         /// <param name="dataIdx"></param>
         /// <param name="lastShowingItems"></param>
         /// <returns></returns>
-        protected ScrollListItem CreateItem(ScrollListItemModel<TData> model, int dataIdx, Dictionary<ScrollListItemModel<TData>, ScrollListItem> lastShowingItems)
+        protected ScrollListItem CreateItem(ScrollListItemModel model, int dataIdx, Dictionary<ScrollListItemModel, ScrollListItem> lastShowingItems)
         {
             ScrollListItem item;
             if (lastShowingItems.ContainsKey(model) && lastShowingItems[model].index == dataIdx) //本来就在显示列表中，直接返回
@@ -544,7 +523,7 @@ namespace Jing.TurbochargedScrollList
 
 
         #region 数据操作
-        public virtual void AddRange(IEnumerable<TData> collection)
+        public virtual void AddRange<T>(IEnumerable<T> collection)
         {            
             foreach (var data in collection)
             {
@@ -552,16 +531,16 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
-        public virtual void Add(TData data)
+        public virtual void Add(object data)
         {
-            var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
+            var model = new ScrollListItemModel(data, itemDefaultfSize);
             _itemModels.Add(model);
             MarkDirty(true);
         }
 
-        public virtual void Insert(int index, TData data)
+        public virtual void Insert(int index, object data)
         {
-            var model = new ScrollListItemModel<TData>(data, itemDefaultfSize);
+            var model = new ScrollListItemModel(data, itemDefaultfSize);
             _itemModels.Insert(index, model);
             if (index <= lastStartIndex)
             {
@@ -578,7 +557,7 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual bool Remove(TData data)
+        public virtual bool Remove(object data)
         {
             for (int i = 0; i < _itemModels.Count; i++)
             {

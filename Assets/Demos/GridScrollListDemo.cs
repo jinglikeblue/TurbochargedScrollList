@@ -1,15 +1,11 @@
 ﻿using Jing.TurbochargedScrollList;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GridScrollListDemo : BaseScrollListDemo
-{
-    
+{   
+    public GridScrollListComponent listComponent;
 
-    public GridScrollListComponent list;
+    GridScrollList list;
 
     protected override void InitItems()
     {
@@ -19,8 +15,8 @@ public class GridScrollListDemo : BaseScrollListDemo
             datas[i] = i;
         }
 
-        //var list = new GridScrollList(GameObject.Find("Grid Scroll View"), OnRenderItem, new Vector2(10,10), EGridConstraint.FIXED_ROW_COUNT, 3);
-        list.renderItem += OnItemRender;
+        list = listComponent.GetList();        
+        list.onRenderItem += OnItemRender;
         list.onRebuildContent += OnRebuildContent;
         list.onRefresh += OnListRefresh;
         list.AddRange(datas);

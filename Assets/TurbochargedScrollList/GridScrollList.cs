@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
@@ -52,64 +50,11 @@ namespace Jing.TurbochargedScrollList
         {
             this.index = x * _gridRowCount + y;
         }
-
     }
 
-
-    public enum EGridConstraint
+    public class GridScrollList : BaseScrollList
     {
-        /// <summary>
-        /// 根据视口自动填充
-        /// </summary>
-        FLEXIBLE,
-
-        /// <summary>
-        /// 固定列数
-        /// </summary>
-        FIXED_COLUMN_COUNT,
-
-        /// <summary>
-        /// 固定行数
-        /// </summary>
-        FIXED_ROW_COUNT,
-    }
-
-    public class GridScrollList : GridScrollList<object>
-    {
-        public GridScrollList(GameObject scrollView, OnRenderItem itemRender) : base(scrollView, itemRender)
-        {
-        }
-
-        public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0) : base(scrollView, itemRender, gap, constraint, constraintCount)
-        {
-
-        }
-
-        public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0) : base(scrollView, itemPrefab, itemRender, gap, constraint, constraintCount)
-        {
-        }
-
-        public virtual void AddRange<TInput>(IEnumerable<TInput> collection)
-        {
-            foreach (var data in collection)
-            {
-                Add(data);
-            }
-        }
-    }
-
-    public class GridScrollList<TData> : BaseScrollList<TData>
-    {
-        /// <summary>
-        /// 列表项排列方式限定
-        /// </summary>
-        public EGridConstraint constraint { get; private set; }
-
-        /// <summary>
-        /// 当constraint不为「FLEXIBLE」，根据该值确定列数或者行数
-        /// </summary>
-        public int constraintCount { get; private set; }
-
+        public GridLayoutSettings layout { get; private set; }
 
         /// <summary>
         /// 行数
@@ -131,76 +76,13 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         float _bigH;
 
-        public GridScrollList(GameObject scrollView, OnRenderItem itemRender)
+        public GridScrollList(GameObject scrollView, GameObject itemPrefab, GridLayoutSettings layoutSettings)
         {
+            layout = layoutSettings;
+
             InitScrollView(scrollView);
 
-            var layout = content.GetComponent<GridLayoutGroup>();
-
-            var ls = new HorizontalLayoutSettings();
-            ls.gapX = layout.spacing.x;
-            ls.gapY = layout.spacing.y;
-            ls.paddingTop = layout.padding.top;
-            ls.paddingBottom = layout.padding.bottom;
-            ls.paddingLeft = layout.padding.left;
-            ls.paddingRight = layout.padding.right;
-            InitLayoutSettings(ls);
-            
-            switch (layout.constraint)
-            {
-                case GridLayoutGroup.Constraint.Flexible:
-                    this.constraint = EGridConstraint.FLEXIBLE;
-                    break;
-                case GridLayoutGroup.Constraint.FixedColumnCount:
-                    this.constraint = EGridConstraint.FIXED_COLUMN_COUNT;
-                    break;
-                case GridLayoutGroup.Constraint.FixedRowCount:
-                    this.constraint = EGridConstraint.FIXED_ROW_COUNT;
-                    break;
-            }
-            this.constraintCount = layout.constraintCount;            
-            GameObject.Destroy(layout);
-
-            AutoInitItem(itemRender);
-        }
-
-        public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
-        {
-            InitScrollView(scrollView);
-
-            var ls = new HorizontalLayoutSettings();
-            ls.gapX = gap.x;
-            ls.gapY = gap.y;            
-            InitLayoutSettings(ls);
-
-
-            this.constraint = constraint;
-            this.constraintCount = constraintCount;
-            if (EGridConstraint.FLEXIBLE == constraint)
-            {
-                scrollRect.horizontal = false;
-            }
-
-            AutoInitItem(itemRender);
-        }
-
-        public GridScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
-        {
-            InitScrollView(scrollView);
-
-            var ls = new HorizontalLayoutSettings();
-            ls.gapX = gap.x;
-            ls.gapY = gap.y;
-            InitLayoutSettings(ls);
-
-            this.constraint = constraint;
-            this.constraintCount = constraintCount;
-            if (EGridConstraint.FLEXIBLE == constraint)
-            {
-                scrollRect.horizontal = false;
-            }
-
-            InitItem(itemPrefab, itemRender);
+            InitItem(itemPrefab);
         }
 
         protected override bool AdjustmentItemSize(ScrollListItem item)
@@ -226,7 +108,7 @@ namespace Jing.TurbochargedScrollList
                 scrollY = 0;
             }
 
-            bool isColByCol = constraint == EGridConstraint.FIXED_ROW_COUNT ? true : false;
+            bool isColByCol = layout.constraint == EGridConstraint.FIXED_ROW_COUNT ? true : false;
 
             //计算出关联的所有Item的索引
             List<GridPos> list = new List<GridPos>();
@@ -252,7 +134,7 @@ namespace Jing.TurbochargedScrollList
             /// <summary>
             /// 最后一次显示的Item的缓存
             /// </summary>
-            Dictionary<ScrollListItemModel<TData>, ScrollListItem> lastShowingItems = new Dictionary<ScrollListItemModel<TData>, ScrollListItem>(_showingItems);
+            Dictionary<ScrollListItemModel, ScrollListItem> lastShowingItems = new Dictionary<ScrollListItemModel, ScrollListItem>(_showingItems);
 
             _showingItems.Clear();
 
@@ -336,54 +218,54 @@ namespace Jing.TurbochargedScrollList
             float contentH = 0;
             int itemAmount = _itemModels.Count;
 
-            _bigW = itemDefaultfSize.x + layoutSettings.gapX;
-            _bigH = itemDefaultfSize.y + layoutSettings.gapY;
+            _bigW = itemDefaultfSize.x + layout.gapX;
+            _bigH = itemDefaultfSize.y + layout.gapY;
 
             colCount = 0;
             rowCount = 0;
 
             //计算Content大小
-            switch (constraint)
+            switch (layout.constraint)
             {
                 case EGridConstraint.FLEXIBLE: //根据视口确定Content大小，并且计算出constraint数量
                     contentW = viewportSize.x;
                     //计算出constraintCount
-                    constraintCount = (int)((contentW + layoutSettings.gapX) / _bigW);
+                    layout.constraintCount = (int)((contentW + layout.gapX) / _bigW);
                     //确定高度,通过item总数和constraintCount算出                    
                     if (itemAmount > 0)
                     {
-                        rowCount = (itemAmount - 1) / constraintCount + 1;
-                        contentH = rowCount * _bigH - layoutSettings.gapY;
+                        rowCount = (itemAmount - 1) / layout.constraintCount + 1;
+                        contentH = rowCount * _bigH - layout.gapY;
                     }
 
-                    colCount = constraintCount;
+                    colCount = layout.constraintCount;
                     break;
                 case EGridConstraint.FIXED_COLUMN_COUNT: //根据列数确定Content大小
 
-                    colCount = constraintCount;
+                    colCount = layout.constraintCount;
                     if (_itemModels.Count < colCount)
                     {
                         colCount = _itemModels.Count;
                     }
 
-                    contentW = colCount * _bigW - layoutSettings.gapX;
+                    contentW = colCount * _bigW - layout.gapX;
                     //确定高度,通过item总数和constraintCount算出
                     if (itemAmount > 0)
                     {
                         rowCount = (itemAmount - 1) / colCount + 1;
-                        contentH = rowCount * _bigH - layoutSettings.gapY;
+                        contentH = rowCount * _bigH - layout.gapY;
                     }
 
                     break;
                 case EGridConstraint.FIXED_ROW_COUNT: //根据行数确定Content大小
 
-                    rowCount = constraintCount;
+                    rowCount = layout.constraintCount;
                     if (_itemModels.Count < rowCount)
                     {
                         rowCount = _itemModels.Count;
                     }
 
-                    contentH = rowCount * _bigH - layoutSettings.gapY;
+                    contentH = rowCount * _bigH - layout.gapY;
                     if (contentH < 0)
                     {
                         contentH = 0;
@@ -392,7 +274,7 @@ namespace Jing.TurbochargedScrollList
                     if (itemAmount > 0)
                     {
                         colCount = (itemAmount - 1) / rowCount + 1;
-                        contentW = colCount * _bigW - layoutSettings.gapX;
+                        contentW = colCount * _bigW - layout.gapX;
                     }
                     break;
             }
@@ -412,7 +294,7 @@ namespace Jing.TurbochargedScrollList
 
         public override void ScrollToItem(int index)
         {
-            bool isColByCol = constraint == EGridConstraint.FIXED_ROW_COUNT ? true : false;
+            bool isColByCol = layout.constraint == EGridConstraint.FIXED_ROW_COUNT ? true : false;
             GridPos gridPos;
             if (isColByCol)
             {

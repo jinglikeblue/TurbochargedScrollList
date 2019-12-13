@@ -3,42 +3,12 @@
 namespace Jing.TurbochargedScrollList
 {
     [Serializable]
-    public class VerticalLayoutSettings : BaseLayoutSettings
+    public class VerticalLayoutSettings
     {
-        public float PaddingTop
-        {
-            get
-            {
-                return paddingTop;
-            }
-            set
-            {
-                paddingTop = value;
-            }
-        }
+        public float paddingTop = 0;
 
-        public float PaddingBottom
-        {
-            get
-            {
-                return paddingBottom;
-            }
-            set
-            {
-                paddingBottom = value;
-            }
-        }
+        public float paddingBottom = 0;
 
-        public float Gap
-        {
-            get
-            {
-                return gapY;
-            }
-            set
-            {
-                gapY = value;
-            }
-        }
+        public float gap = 0;
     }
 }

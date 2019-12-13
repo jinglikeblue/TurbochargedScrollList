@@ -1,10 +1,11 @@
 ﻿using Jing.TurbochargedScrollList;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class VerticalScrollListDemo : BaseScrollListDemo
 {       
-    IScrollList<int> list;
+    IScrollList list;
+
+    public GameObject itemPrefab;
 
     protected override void InitItems()
     {
@@ -14,12 +15,15 @@ public class VerticalScrollListDemo : BaseScrollListDemo
             datas[i] = i;
         }
 
-        list = new VerticalScrollList<int>(scrollView, OnItemRender);
+        var layout = new VerticalLayoutSettings();
+        layout.gap = 10;
+        list = new VerticalScrollList(scrollView, itemPrefab, layout);
+        list.onRenderItem += OnItemRender;
         list.onRebuildContent += OnRebuildContent;
         list.onRefresh += OnListRefresh;
         list.AddRange(datas);
     }
-    protected void OnItemRender(ScrollListItem item, int data, bool isRefresh)
+    protected void OnItemRender(ScrollListItem item, object data, bool isRefresh)
     {
         item.GetComponent<Item>().Refresh();
         Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);

@@ -1,72 +1,22 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
-    public class VerticalScrollList : VerticalScrollList<object>
-    {
-        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender) : base(scrollView, itemRender)
-        {
-        }
-
-        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap) : base(scrollView, itemRender, gap)
-        {
-        }
-
-        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap) : base(scrollView, itemPrefab, itemRender, gap)
-        {
-        }
-
-        public virtual void AddRange<TInput>(IEnumerable<TInput> collection)
-        {
-            foreach (var data in collection)
-            {
-                Add(data);
-            }
-        }
-    }
-
     /// <summary>
     /// 垂直滚动列表
     /// </summary>
-    public class VerticalScrollList<TData> : BaseScrollList<TData>
+    public class VerticalScrollList : BaseScrollList
     {
-        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender)
+        public VerticalLayoutSettings layout { get; private set; }
+
+        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, VerticalLayoutSettings layoutSettings)
         {
-            InitScrollView(scrollView);
+            layout = layoutSettings;
 
-            var layout = content.GetComponent<VerticalLayoutGroup>();                        
-            var ls = new VerticalLayoutSettings();
-            ls.gapY = layout.spacing;
-            ls.paddingTop = layout.padding.top;
-            ls.paddingBottom = layout.padding.bottom;
-            InitLayoutSettings(ls);         
-            GameObject.Destroy(layout);            
+            InitScrollView(scrollView);                                  
 
-            AutoInitItem(itemRender);             
-        }
-
-        public VerticalScrollList(GameObject scrollView, OnRenderItem itemRender, float gap)
-        {
-            InitScrollView(scrollView);
-
-            var ls = new VerticalLayoutSettings();
-            ls.gapY = gap;
-            InitLayoutSettings(ls);
-
-            AutoInitItem(itemRender);
-        }
-
-        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, OnRenderItem itemRender, float gap)
-        {
-            InitScrollView(scrollView);
-
-            var ls = new VerticalLayoutSettings();
-            ls.gapY = gap;
-            InitLayoutSettings(ls);
-
-            InitItem(itemPrefab, itemRender);
+            InitItem(itemPrefab);             
         }
 
         protected override void ResizeContent(UpdateData updateConfig)
@@ -74,12 +24,12 @@ namespace Jing.TurbochargedScrollList
             float h = 0;
             for (int i = 0; i < _itemModels.Count; i++)
             {
-                h += (_itemModels[i].height + layoutSettings.gapY);
+                h += (_itemModels[i].height + layout.gap);
             }
-            h -= layoutSettings.gapY;
+            h -= layout.gap;
 
             //加上上下边距
-            h = h + layoutSettings.paddingTop + layoutSettings.paddingBottom;            
+            h = h + layout.paddingTop + layout.paddingBottom;            
             var w = viewportSize.x;
             SetContentSize(w, h);
         }
@@ -105,7 +55,7 @@ namespace Jing.TurbochargedScrollList
             }
 
             int dataIdx;
-            float startPos = layoutSettings.paddingTop;
+            float startPos = layout.paddingTop;
 
             for(dataIdx = 0; dataIdx < _itemModels.Count; dataIdx++)
             {
@@ -116,7 +66,7 @@ namespace Jing.TurbochargedScrollList
                     break;
                 }
 
-                startPos = dataBottom + layoutSettings.gapY;
+                startPos = dataBottom + layout.gap;
             }
 
             lastStartIndex = dataIdx;
@@ -128,7 +78,7 @@ namespace Jing.TurbochargedScrollList
             /// <summary>
             /// 最后一次显示的Item的缓存
             /// </summary>
-            Dictionary<ScrollListItemModel<TData>, ScrollListItem> lastShowingItems = new Dictionary<ScrollListItemModel<TData>, ScrollListItem>(_showingItems);
+            Dictionary<ScrollListItemModel, ScrollListItem> lastShowingItems = new Dictionary<ScrollListItemModel, ScrollListItem>(_showingItems);
 
             _showingItems.Clear();
 
@@ -145,7 +95,7 @@ namespace Jing.TurbochargedScrollList
                 pos.y = itemY;                
                 item.rectTransform.localPosition = pos;
                 //下一个item的Y坐标
-                itemY -= (item.height + layoutSettings.gapY);
+                itemY -= (item.height + layout.gap);
                 //下一个item的索引
                 dataIdx++;
 
@@ -188,10 +138,10 @@ namespace Jing.TurbochargedScrollList
                 index = _itemModels.Count - 1;
             }
 
-            float pos = layoutSettings.paddingTop;
+            float pos = layout.paddingTop;
             for (int i = 0; i < index; i++)
             {
-                pos += (_itemModels[i].height + layoutSettings.gapY);
+                pos += (_itemModels[i].height + layout.gap);
             }
 
             ScrollToPosition(pos);

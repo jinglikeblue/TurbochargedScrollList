@@ -6,12 +6,12 @@ namespace Jing.TurbochargedScrollList
     /// 列表项的模型
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ScrollListItemModel<T>
+    public class ScrollListItemModel
     {
         /// <summary>
         /// 关联的数据
         /// </summary>
-        public readonly T data;
+        public readonly object data;
 
         /// <summary>
         /// 记录的列表项高度
@@ -23,7 +23,7 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public float width;
 
-        public ScrollListItemModel(T data, Vector2 defaultSize)
+        public ScrollListItemModel(object data, Vector2 defaultSize)
         {
             this.data = data;
             width = defaultSize.x;

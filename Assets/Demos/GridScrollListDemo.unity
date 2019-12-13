@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemCount: 100
-  list: {fileID: 1604324796}
+  listComponent: {fileID: 1604324796}
 --- !u!1 &537418614
 GameObject:
   m_ObjectHideFlags: 0
@@ -1104,14 +1104,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1604324791}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fcf8e384e8e8a94398e4620d6316a80, type: 3}
+  m_Script: {fileID: 11500000, guid: 2a4b23a9faa8e2e4a8e93dea69cd8120, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   itemPrefab: {fileID: 2868811791433138087, guid: d0eb7f73a53a10643ab1ad801a35ebf3,
     type: 3}
-  gap: {x: 10, y: 10}
-  constraint: 1
-  constraintCount: 10
+  layout:
+    paddingLeft: 50
+    paddingRight: 50
+    paddingTop: 50
+    paddingBottom: 50
+    gapX: 10
+    gapY: 10
+    constraint: 2
+    constraintCount: 10
 --- !u!1001 &3712598920125287845
 PrefabInstance:
   m_ObjectHideFlags: 0

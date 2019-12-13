@@ -1,41 +1,11 @@
 ﻿namespace Jing.TurbochargedScrollList
 {
-    class HorizontalLayoutSettings : BaseLayoutSettings
+    public class HorizontalLayoutSettings
     {
-        public float PaddingLeft
-        {
-            get
-            {
-                return paddingLeft;
-            }
-            set
-            {
-                paddingLeft = value;
-            }
-        }
+        public float paddingLeft = 0;
 
-        public float PaddingRight
-        {
-            get
-            {
-                return paddingRight;
-            }
-            set
-            {
-                paddingRight = value;
-            }
-        }
+        public float paddingRight = 0;
 
-        public float Gap
-        {
-            get
-            {
-                return gapX;
-            }
-            set
-            {
-                gapX = value;
-            }
-        }
+        public float gap = 0;
     }
 }

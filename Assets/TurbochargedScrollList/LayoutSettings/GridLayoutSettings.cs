@@ -3,78 +3,28 @@
 namespace Jing.TurbochargedScrollList
 {
     [Serializable]
-    public class GridLayoutSettings : BaseLayoutSettings
-    {
-        public float PaddingTop
-        {
-            get
-            {
-                return paddingTop;
-            }
-            set
-            {
-                paddingTop = value;
-            }
-        }
+    public class GridLayoutSettings
+    {        
+        public float paddingLeft = 0;
+     
+        public float paddingRight = 0;
+        
+        public float paddingTop = 0;
+        
+        public float paddingBottom = 0;
+        
+        public float gapX = 0;
+        
+        public float gapY = 0;
 
-        public float PaddingBottom
-        {
-            get
-            {
-                return paddingBottom;
-            }
-            set
-            {
-                paddingBottom = value;
-            }
-        }
+        /// <summary>
+        /// 列表项排列方式限定
+        /// </summary>
+        public EGridConstraint constraint = EGridConstraint.FLEXIBLE;
 
-        public float PaddingLeft
-        {
-            get
-            {
-                return paddingLeft;
-            }
-            set
-            {
-                paddingLeft = value;
-            }
-        }
-
-        public float PaddingRight
-        {
-            get
-            {
-                return paddingRight;
-            }
-            set
-            {
-                paddingRight = value;
-            }
-        }
-
-        public float GapX
-        {
-            get
-            {
-                return gapX;
-            }
-            set
-            {
-                gapX = value;
-            }
-        }
-
-        public float GapY
-        {
-            get
-            {
-                return gapY;
-            }
-            set
-            {
-                gapY = value;
-            }
-        }
+        /// <summary>
+        /// 当constraint不为「FLEXIBLE」，根据该值确定列数或者行数
+        /// </summary>
+        public int constraintCount = 2;
     }
 }

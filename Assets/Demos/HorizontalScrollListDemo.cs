@@ -6,6 +6,8 @@ public class HorizontalScrollListDemo : BaseScrollListDemo
 {
     HorizontalScrollList list;
 
+    public GameObject itemPrefab;
+
     protected override void InitItems()
     {
         var datas = new int[itemCount];
@@ -13,8 +15,9 @@ public class HorizontalScrollListDemo : BaseScrollListDemo
         {
             datas[i] = i;
         }
-
-        list = new HorizontalScrollList(scrollView, OnItemRender);
+        var ls = new HorizontalLayoutSettings();
+        ls.gap = 10;
+        list = new HorizontalScrollList(scrollView, itemPrefab, ls);
         list.onRebuildContent += OnRebuildContent;
         list.onRefresh += OnListRefresh;
         list.AddRange(datas);
