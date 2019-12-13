@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
@@ -10,13 +11,13 @@ namespace Jing.TurbochargedScrollList
     {
         public VerticalLayoutSettings layout { get; private set; }
 
-        public VerticalScrollList(GameObject scrollView, GameObject itemPrefab, VerticalLayoutSettings layoutSettings)
+        public VerticalScrollList(ScrollRect scrollRect, GameObject itemPrefab, VerticalLayoutSettings layoutSettings)
         {
             layout = layoutSettings;
 
-            InitScrollView(scrollView);                                  
+            InitScrollView(scrollRect);                                  
 
-            InitItem(itemPrefab);             
+            InitItem(itemPrefab);
         }
 
         protected override void ResizeContent(UpdateData updateConfig)

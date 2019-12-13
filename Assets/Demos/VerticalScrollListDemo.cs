@@ -1,5 +1,6 @@
 ﻿using Jing.TurbochargedScrollList;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class VerticalScrollListDemo : BaseScrollListDemo
 {       
@@ -18,7 +19,7 @@ public class VerticalScrollListDemo : BaseScrollListDemo
         var layout = new VerticalLayoutSettings();
         layout.gap = 10;
         layout.paddingTop = 50;    
-        list = new VerticalScrollList(scrollView, itemPrefab, layout);
+        list = new VerticalScrollList(scrollView.GetComponent<ScrollRect>(), itemPrefab, layout);
         list.onRenderItem += OnItemRender;
         list.onRebuildContent += OnRebuildContent;
         list.onRefresh += OnListRefresh;

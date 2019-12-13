@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(ScrollRect))]
     public class TurbochargedHorizontalScrollList : MonoBehaviour
     {
         public GameObject itemPrefab;
@@ -14,7 +17,7 @@ namespace Jing.TurbochargedScrollList
         {
             if (null == _list)
             {
-                _list = new HorizontalScrollList(gameObject, itemPrefab, layout);
+                _list = new HorizontalScrollList(GetComponent<ScrollRect>(), itemPrefab, layout);
             }
             return _list;
         }

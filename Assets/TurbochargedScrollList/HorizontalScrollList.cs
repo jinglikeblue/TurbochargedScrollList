@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
@@ -10,11 +11,11 @@ namespace Jing.TurbochargedScrollList
     {
         public HorizontalLayoutSettings layout { get; private set; }
 
-        public HorizontalScrollList(GameObject scrollView, GameObject itemPrefab, HorizontalLayoutSettings layoutSettings)
+        public HorizontalScrollList(ScrollRect scrollRect, GameObject itemPrefab, HorizontalLayoutSettings layoutSettings)
         {
             layout = layoutSettings;
 
-            InitScrollView(scrollView);            
+            InitScrollView(scrollRect);            
 
             InitItem(itemPrefab);
         }

@@ -177,11 +177,10 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public int lastStartIndex { get; private set; }
 
-        protected void InitScrollView(GameObject scrollView)
+        protected void InitScrollView(ScrollRect scrollRect)
         {
-            scrollRect = scrollView.GetComponent<ScrollRect>();
-
-            content = scrollRect.content;
+            this.scrollRect = scrollRect;
+            content = this.scrollRect.content;
             content.localPosition = Vector3.zero;
         }
 

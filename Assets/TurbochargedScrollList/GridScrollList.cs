@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
@@ -76,11 +77,11 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         float _bigH;
 
-        public GridScrollList(GameObject scrollView, GameObject itemPrefab, GridLayoutSettings layoutSettings)
+        public GridScrollList(ScrollRect scrollRect, GameObject itemPrefab, GridLayoutSettings layoutSettings)
         {
             layout = layoutSettings;
 
-            InitScrollView(scrollView);
+            InitScrollView(scrollRect);
 
             InitItem(itemPrefab);
         }
