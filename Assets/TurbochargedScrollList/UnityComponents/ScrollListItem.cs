@@ -32,9 +32,7 @@ namespace Jing.TurbochargedScrollList
             {
                 if (rectTransform.sizeDelta.x != value)
                 {
-                    var sd = rectTransform.sizeDelta;
-                    sd.x = value;
-                    rectTransform.sizeDelta = sd;
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value);                    
                 }
             }
         }
@@ -52,9 +50,7 @@ namespace Jing.TurbochargedScrollList
             {
                 if (rectTransform.sizeDelta.y != value)
                 {
-                    var sd = rectTransform.sizeDelta;
-                    sd.y = value;
-                    rectTransform.sizeDelta = sd;
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, value);
                 }
             }
         }
