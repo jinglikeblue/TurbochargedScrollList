@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Jing.TurbochargedScrollList
 {
@@ -25,6 +26,7 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 当constraint不为「FLEXIBLE」，根据该值确定列数或者行数
         /// </summary>
+        [Header("Work When [Constraint != EGridConstraint.FLEXIBLE]")]
         public int constraintCount = 2;
     }
 }

@@ -273,7 +273,7 @@ namespace Jing.TurbochargedScrollList
             {
                 _updateData.keepPaddingType = keepPaddingType;
             }
-        }
+        }        
 
         void Update()
         {

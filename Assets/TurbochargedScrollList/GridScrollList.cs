@@ -145,7 +145,10 @@ namespace Jing.TurbochargedScrollList
 
                 ScrollListItem item = CreateItem(model, gridPos.index, lastShowingItems);
                 _showingItems[model] = item;
-                item.rectTransform.localPosition = new Vector3(gridPos.pixelX, -gridPos.pixelY, 0);
+                var pos = new Vector3(gridPos.pixelX, -gridPos.pixelY, 0);
+                pos.x += layout.paddingLeft;
+                pos.y -= layout.paddingTop;
+                item.rectTransform.localPosition = pos;
             }
 
             //回收没有使用的item
@@ -228,7 +231,7 @@ namespace Jing.TurbochargedScrollList
             switch (layout.constraint)
             {
                 case EGridConstraint.FLEXIBLE: //根据视口确定Content大小，并且计算出constraint数量
-                    contentW = viewportSize.x;
+                    contentW = viewportSize.x - layout.paddingLeft - layout.paddingRight;
                     //计算出constraintCount
                     layout.constraintCount = (int)((contentW + layout.gapX) / _bigW);
                     //确定高度,通过item总数和constraintCount算出                    
@@ -289,7 +292,10 @@ namespace Jing.TurbochargedScrollList
                 contentH = 0;
             }
 
-            SetContentSize(contentW, contentH);
+            var w = contentW + layout.paddingLeft + layout.paddingRight;
+            var h = contentH + layout.paddingTop + layout.paddingBottom;
+
+            SetContentSize(w, h);
         }        
 
         public override void ScrollToItem(int index)
@@ -310,7 +316,7 @@ namespace Jing.TurbochargedScrollList
                 gridPos = new GridPos(x, y, colCount, rowCount, _bigW, _bigH);
             }            
 
-            ScrollToPosition(gridPos.pixelX, gridPos.pixelY);
+            ScrollToPosition(gridPos.pixelX + layout.paddingLeft, gridPos.pixelY + layout.paddingTop);
         }
 
         public void ScrollToPosition(float x, float y)

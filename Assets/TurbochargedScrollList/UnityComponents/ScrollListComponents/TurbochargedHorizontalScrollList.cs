@@ -2,7 +2,7 @@
 
 namespace Jing.TurbochargedScrollList
 {
-    public class HorizontalScrollListComponent : MonoBehaviour
+    public class TurbochargedHorizontalScrollList : MonoBehaviour
     {
         public GameObject itemPrefab;
 

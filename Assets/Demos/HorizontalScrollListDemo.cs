@@ -1,6 +1,5 @@
 ﻿using Jing.TurbochargedScrollList;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HorizontalScrollListDemo : BaseScrollListDemo
 {
@@ -17,7 +16,9 @@ public class HorizontalScrollListDemo : BaseScrollListDemo
         }
         var ls = new HorizontalLayoutSettings();
         ls.gap = 10;
-        list = new HorizontalScrollList(scrollView, itemPrefab, ls);
+        ls.paddingRight = 500;
+        list = new HorizontalScrollList(scrollView, itemPrefab, ls);        
+        list.onRenderItem += OnItemRender;
         list.onRebuildContent += OnRebuildContent;
         list.onRefresh += OnListRefresh;
         list.AddRange(datas);

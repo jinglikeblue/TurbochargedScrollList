@@ -17,6 +17,7 @@ public class VerticalScrollListDemo : BaseScrollListDemo
 
         var layout = new VerticalLayoutSettings();
         layout.gap = 10;
+        layout.paddingTop = 50;    
         list = new VerticalScrollList(scrollView, itemPrefab, layout);
         list.onRenderItem += OnItemRender;
         list.onRebuildContent += OnRebuildContent;

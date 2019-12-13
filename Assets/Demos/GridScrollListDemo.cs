@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GridScrollListDemo : BaseScrollListDemo
 {   
-    public GridScrollListComponent listComponent;
+    public TurbochargedGridScrollList listComponent;
 
     GridScrollList list;
 
