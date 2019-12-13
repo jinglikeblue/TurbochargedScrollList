@@ -75,7 +75,18 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
+        /// <summary>
+        /// 列表边距
+        /// </summary>
+        protected BaseLayoutSettings layoutSettings { get; private set; }
+
         protected UpdateData _updateData;
+
+        /// <summary>
+        /// 列表项被复用前的委托
+        /// </summary>
+        /// <param name="item"></param>
+        //public delegate void OnItemBeforeReuse(ScrollListItem item);        
 
         public ScrollRect scrollRect { get; private set; }
 
@@ -171,6 +182,11 @@ namespace Jing.TurbochargedScrollList
 
             content = scrollRect.content;
             content.localPosition = Vector3.zero;
+        }
+
+        protected void InitLayoutSettings(BaseLayoutSettings ls)
+        {
+            layoutSettings = ls;
         }
 
         protected void InitItem(GameObject itemPrefab, OnRenderItem itemRender)

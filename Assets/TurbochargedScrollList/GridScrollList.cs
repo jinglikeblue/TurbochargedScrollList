@@ -101,11 +101,6 @@ namespace Jing.TurbochargedScrollList
     public class GridScrollList<TData> : BaseScrollList<TData>
     {
         /// <summary>
-        /// 列表项之间的间距
-        /// </summary>
-        public Vector2 gap { get; private set; }
-
-        /// <summary>
         /// 列表项排列方式限定
         /// </summary>
         public EGridConstraint constraint { get; private set; }
@@ -165,7 +160,12 @@ namespace Jing.TurbochargedScrollList
         {
             InitScrollView(scrollView);
 
-            this.gap = gap;
+            var ls = new HorizontalLayoutSettings();
+            ls.gapX = gap.x;
+            ls.gapY = gap.y;            
+            InitLayoutSettings(ls);
+
+
             this.constraint = constraint;
             this.constraintCount = constraintCount;
             if (EGridConstraint.FLEXIBLE == constraint)
@@ -180,7 +180,11 @@ namespace Jing.TurbochargedScrollList
         {
             InitScrollView(scrollView);
 
-            this.gap = gap;
+            var ls = new HorizontalLayoutSettings();
+            ls.gapX = gap.x;
+            ls.gapY = gap.y;
+            InitLayoutSettings(ls);
+
             this.constraint = constraint;
             this.constraintCount = constraintCount;
             if (EGridConstraint.FLEXIBLE == constraint)
@@ -324,8 +328,8 @@ namespace Jing.TurbochargedScrollList
             float contentH = 0;
             int itemAmount = _itemModels.Count;
 
-            _bigW = itemDefaultfSize.x + gap.x;
-            _bigH = itemDefaultfSize.y + gap.y;
+            _bigW = itemDefaultfSize.x + layoutSettings.gapX;
+            _bigH = itemDefaultfSize.y + layoutSettings.gapY;
 
             colCount = 0;
             rowCount = 0;
@@ -336,12 +340,12 @@ namespace Jing.TurbochargedScrollList
                 case EGridConstraint.FLEXIBLE: //根据视口确定Content大小，并且计算出constraint数量
                     contentW = viewportSize.x;
                     //计算出constraintCount
-                    constraintCount = (int)((contentW + gap.x) / _bigW);
+                    constraintCount = (int)((contentW + layoutSettings.gapX) / _bigW);
                     //确定高度,通过item总数和constraintCount算出                    
                     if (itemAmount > 0)
                     {
                         rowCount = (itemAmount - 1) / constraintCount + 1;
-                        contentH = rowCount * _bigH - gap.y;
+                        contentH = rowCount * _bigH - layoutSettings.gapY;
                     }
 
                     colCount = constraintCount;
@@ -354,12 +358,12 @@ namespace Jing.TurbochargedScrollList
                         colCount = _itemModels.Count;
                     }
 
-                    contentW = colCount * _bigW - gap.x;
+                    contentW = colCount * _bigW - layoutSettings.gapX;
                     //确定高度,通过item总数和constraintCount算出
                     if (itemAmount > 0)
                     {
                         rowCount = (itemAmount - 1) / colCount + 1;
-                        contentH = rowCount * _bigH - gap.y;
+                        contentH = rowCount * _bigH - layoutSettings.gapY;
                     }
 
                     break;
@@ -371,7 +375,7 @@ namespace Jing.TurbochargedScrollList
                         rowCount = _itemModels.Count;
                     }
 
-                    contentH = rowCount * _bigH - gap.y;
+                    contentH = rowCount * _bigH - layoutSettings.gapY;
                     if (contentH < 0)
                     {
                         contentH = 0;
@@ -380,7 +384,7 @@ namespace Jing.TurbochargedScrollList
                     if (itemAmount > 0)
                     {
                         colCount = (itemAmount - 1) / rowCount + 1;
-                        contentW = colCount * _bigW - gap.x;
+                        contentW = colCount * _bigW - layoutSettings.gapX;
                     }
                     break;
             }
@@ -420,7 +424,7 @@ namespace Jing.TurbochargedScrollList
         }
 
         public void ScrollToPosition(float x, float y)
-        {    
+        {        
             ScrollToPosition(new Vector2(x, y));
         }
     }

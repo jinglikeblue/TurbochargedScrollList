@@ -33,17 +33,16 @@ namespace Jing.TurbochargedScrollList
     /// </summary>
     public class HorizontalScrollList<TData> : BaseScrollList<TData>
     {
-        /// <summary>
-        /// 列表项间距
-        /// </summary>
-        public float gap { get; private set; }
-
         public HorizontalScrollList(GameObject scrollView, OnRenderItem itemRender)
         {
             InitScrollView(scrollView);
 
             var layout = content.GetComponent<HorizontalLayoutGroup>();
-            this.gap = layout.spacing;
+            var ls = new HorizontalLayoutSettings();
+            ls.gapX = layout.spacing;
+            ls.paddingLeft = layout.padding.left;
+            ls.paddingRight = layout.padding.right;
+            InitLayoutSettings(ls);
             GameObject.Destroy(layout);
 
             AutoInitItem(itemRender);
@@ -53,7 +52,9 @@ namespace Jing.TurbochargedScrollList
         {
             InitScrollView(scrollView);
 
-            this.gap = gap;
+            var ls = new HorizontalLayoutSettings();
+            ls.gapX = gap;
+            InitLayoutSettings(ls);
 
             AutoInitItem(itemRender);
         }
@@ -62,7 +63,9 @@ namespace Jing.TurbochargedScrollList
         {
             InitScrollView(scrollView);
 
-            this.gap = gap;
+            var ls = new VerticalLayoutSettings();
+            ls.gapX = gap;
+            InitLayoutSettings(ls);
 
             InitItem(itemPrefab, itemRender);
         }
@@ -72,9 +75,11 @@ namespace Jing.TurbochargedScrollList
             float w = 0;
             for (int i = 0; i < _itemModels.Count; i++)
             {
-                w += (_itemModels[i].width + gap);
+                w += (_itemModels[i].width + layoutSettings.gapX);
             }
-            w -= gap;
+            w -= layoutSettings.gapX;
+
+            w = w + layoutSettings.paddingLeft + layoutSettings.paddingRight;
 
             SetContentSize(w, viewportSize.y);
         }
@@ -106,7 +111,7 @@ namespace Jing.TurbochargedScrollList
             }
 
             int dataIdx;
-            float startPos = 0;
+            float startPos = layoutSettings.paddingLeft;
 
             for(dataIdx = 0; dataIdx < _itemModels.Count; dataIdx++)
             {
@@ -117,7 +122,7 @@ namespace Jing.TurbochargedScrollList
                     break;
                 }
 
-                startPos = dataRight + gap;
+                startPos = dataRight + layoutSettings.gapX;
             }
             lastStartIndex = dataIdx;
             //显示的内容刚好大于这个值即可           
@@ -143,7 +148,7 @@ namespace Jing.TurbochargedScrollList
                 pos.x = itemX;
                 item.rectTransform.localPosition = pos;
                 //下一个item的X坐标
-                itemX += (item.width + gap);
+                itemX += (item.width + layoutSettings.gapX);
                 //下一个item的索引
                 dataIdx++;
 
@@ -186,10 +191,10 @@ namespace Jing.TurbochargedScrollList
                 index = _itemModels.Count - 1;
             }
 
-            float pos = 0;
+            float pos = layoutSettings.paddingLeft;
             for (int i = 0; i < index; i++)
             {
-                pos += (_itemModels[i].width + gap);
+                pos += (_itemModels[i].width + layoutSettings.gapX);
             }
 
             ScrollToPosition(pos);
