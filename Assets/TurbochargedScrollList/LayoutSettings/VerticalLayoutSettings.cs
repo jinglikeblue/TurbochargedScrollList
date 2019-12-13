@@ -1,5 +1,8 @@
-﻿namespace Jing.TurbochargedScrollList
+﻿using System;
+
+namespace Jing.TurbochargedScrollList
 {
+    [Serializable]
     public class VerticalLayoutSettings : BaseLayoutSettings
     {
         public float PaddingTop

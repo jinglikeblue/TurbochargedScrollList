@@ -76,9 +76,9 @@ namespace Jing.TurbochargedScrollList
 
     public class GridScrollList : GridScrollList<object>
     {
-        //public GridScrollList(GameObject scrollView, OnRenderItem itemRender) : base(scrollView, itemRender)
-        //{
-        //}
+        public GridScrollList(GameObject scrollView, OnRenderItem itemRender) : base(scrollView, itemRender)
+        {
+        }
 
         public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0) : base(scrollView, itemRender, gap, constraint, constraintCount)
         {
@@ -131,30 +131,38 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         float _bigH;
 
-        //public GridScrollList(GameObject scrollView, OnRenderItem itemRender)
-        //{
-        //    InitScrollView(scrollView);
+        public GridScrollList(GameObject scrollView, OnRenderItem itemRender)
+        {
+            InitScrollView(scrollView);
 
-        //    var layout = content.GetComponent<GridLayoutGroup>();
-        //    this.gap = layout.spacing;
-        //    switch (layout.constraint)
-        //    {
-        //        case GridLayoutGroup.Constraint.Flexible:
-        //            this.constraint = EGridConstraint.FLEXIBLE;
-        //            break;
-        //        case GridLayoutGroup.Constraint.FixedColumnCount:
-        //            this.constraint = EGridConstraint.FIXED_COLUMN_COUNT;
-        //            break;
-        //        case GridLayoutGroup.Constraint.FixedRowCount:
-        //            this.constraint = EGridConstraint.FIXED_ROW_COUNT;
-        //            break;
-        //    }
-        //    this.constraintCount = layout.constraintCount;
-        //    layout.enabled = false;
-        //    //GameObject.Destroy(layout);
+            var layout = content.GetComponent<GridLayoutGroup>();
 
-        //    AutoInitItem(itemRender);
-        //}
+            var ls = new HorizontalLayoutSettings();
+            ls.gapX = layout.spacing.x;
+            ls.gapY = layout.spacing.y;
+            ls.paddingTop = layout.padding.top;
+            ls.paddingBottom = layout.padding.bottom;
+            ls.paddingLeft = layout.padding.left;
+            ls.paddingRight = layout.padding.right;
+            InitLayoutSettings(ls);
+            
+            switch (layout.constraint)
+            {
+                case GridLayoutGroup.Constraint.Flexible:
+                    this.constraint = EGridConstraint.FLEXIBLE;
+                    break;
+                case GridLayoutGroup.Constraint.FixedColumnCount:
+                    this.constraint = EGridConstraint.FIXED_COLUMN_COUNT;
+                    break;
+                case GridLayoutGroup.Constraint.FixedRowCount:
+                    this.constraint = EGridConstraint.FIXED_ROW_COUNT;
+                    break;
+            }
+            this.constraintCount = layout.constraintCount;            
+            GameObject.Destroy(layout);
+
+            AutoInitItem(itemRender);
+        }
 
         public GridScrollList(GameObject scrollView, OnRenderItem itemRender, Vector2 gap, EGridConstraint constraint, int constraintCount = 0)
         {
