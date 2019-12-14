@@ -111,11 +111,7 @@ namespace Jing.TurbochargedScrollList
             }
 
             //回收没有使用的item
-            foreach (var item in lastShowingItems.Values)
-            {
-                item.gameObject.SetActive(false);
-                _recycledItems.Add(item);
-            }
+            RecycleUselessItems(lastShowingItems);
         }
         
         

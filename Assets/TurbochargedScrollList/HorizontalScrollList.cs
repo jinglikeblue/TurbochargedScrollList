@@ -116,14 +116,7 @@ namespace Jing.TurbochargedScrollList
             }
 
             //回收没有使用的item
-            foreach(var item in lastShowingItems.Values)
-            {
-                //如果不要内存池，则直接Destroy即可
-                //GameObject.Destroy(item.gameObject);
-
-                item.gameObject.SetActive(false);
-                _recycledItems.Add(item);
-            }            
+            RecycleUselessItems(lastShowingItems);
         }
 
         protected override bool AdjustmentItemSize(ScrollListItem item)

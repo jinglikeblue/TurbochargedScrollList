@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 192675666}
   - component: {fileID: 192675665}
   - component: {fileID: 192675664}
+  - component: {fileID: 192675667}
   m_Layer: 5
   m_Name: Horizontal Scroll View
   m_TagString: Untagged
@@ -222,6 +223,23 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &192675667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 192675662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f722a31553919894cbabdc9e88af338e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemPrefab: {fileID: 0}
+  layout:
+    paddingLeft: 0
+    paddingRight: 0
+    gap: 0
 --- !u!1 &294103445
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,8 +354,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemCount: 100
-  itemPrefab: {fileID: 2868811791433138087, guid: d0eb7f73a53a10643ab1ad801a35ebf3,
-    type: 3}
 --- !u!1 &666461138
 GameObject:
   m_ObjectHideFlags: 0

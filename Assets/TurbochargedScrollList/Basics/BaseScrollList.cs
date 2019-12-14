@@ -75,6 +75,11 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
+        /// <summary>
+        /// 回收数量限制(对象池数量)
+        /// </summary>
+        public int recycleCountLimit = 10;
+
         protected UpdateData _updateData;
 
         /// <summary>
@@ -168,7 +173,7 @@ namespace Jing.TurbochargedScrollList
         /// <summary>
         /// 回收列表项
         /// </summary>
-        protected readonly List<ScrollListItem> _recycledItems = new List<ScrollListItem>();
+        private readonly List<ScrollListItem> _recycledItems = new List<ScrollListItem>();
 
         ScrollListAdapter _proxy;
 
@@ -324,6 +329,26 @@ namespace Jing.TurbochargedScrollList
         public void Destroy()
         {
             scrollRect.onValueChanged.RemoveListener(OnScroll);
+        }
+
+        /// <summary>
+        /// 回收没用的列表项
+        /// </summary>
+        /// <param name="uselessItems"></param>
+        protected void RecycleUselessItems(Dictionary<ScrollListItemModel, ScrollListItem> uselessItems)
+        {
+            foreach (var item in uselessItems.Values)
+            {
+                if (_recycledItems.Count < recycleCountLimit)
+                {
+                    item.gameObject.SetActive(false);
+                    _recycledItems.Add(item);
+                }
+                else
+                {
+                    GameObject.Destroy(item.gameObject);
+                }
+            }
         }
 
         /// <summary>
