@@ -11,9 +11,16 @@ namespace Jing.TurbochargedScrollList
     {
         public HorizontalLayoutSettings layout { get; private set; }
 
-        public HorizontalScrollList(ScrollRect scrollRect, GameObject itemPrefab, HorizontalLayoutSettings layoutSettings)
+        public HorizontalScrollList(ScrollRect scrollRect, GameObject itemPrefab, HorizontalLayoutSettings layoutSettings = null)
         {
-            layout = layoutSettings;
+            if (null == layoutSettings)
+            {
+                layout = new HorizontalLayoutSettings();
+            }
+            else
+            {
+                layout = layoutSettings;
+            }
 
             InitScrollView(scrollRect);            
 

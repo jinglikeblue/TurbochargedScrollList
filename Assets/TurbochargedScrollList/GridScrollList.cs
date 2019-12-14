@@ -77,9 +77,16 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         float _bigH;
 
-        public GridScrollList(ScrollRect scrollRect, GameObject itemPrefab, GridLayoutSettings layoutSettings)
+        public GridScrollList(ScrollRect scrollRect, GameObject itemPrefab, GridLayoutSettings layoutSettings = null)
         {
-            layout = layoutSettings;
+            if (null == layoutSettings)
+            {
+                layout = new GridLayoutSettings();
+            }
+            else
+            {
+                layout = layoutSettings;
+            }
 
             InitScrollView(scrollRect);
 

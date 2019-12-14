@@ -11,9 +11,16 @@ namespace Jing.TurbochargedScrollList
     {
         public VerticalLayoutSettings layout { get; private set; }
 
-        public VerticalScrollList(ScrollRect scrollRect, GameObject itemPrefab, VerticalLayoutSettings layoutSettings)
+        public VerticalScrollList(ScrollRect scrollRect, GameObject itemPrefab, VerticalLayoutSettings layoutSettings = null)
         {
-            layout = layoutSettings;
+            if (null == layoutSettings)
+            {
+                layout = new VerticalLayoutSettings();
+            }
+            else
+            {
+                layout = layoutSettings;
+            }
 
             InitScrollView(scrollRect);                                  
 
