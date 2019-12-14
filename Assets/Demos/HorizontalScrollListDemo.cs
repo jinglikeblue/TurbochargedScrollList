@@ -4,9 +4,7 @@ using UnityEngine.UI;
 
 public class HorizontalScrollListDemo : BaseScrollListDemo
 {
-    HorizontalScrollList list;
-
-    
+    HorizontalScrollList list;    
 
     protected override void InitItems()
     {

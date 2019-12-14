@@ -8,7 +8,7 @@ namespace Jing.TurbochargedScrollList
     public class TurbochargedHorizontalScrollList : MonoBehaviour
     {
         public GameObject itemPrefab;
-
+        
         public HorizontalLayoutSettings layout;
 
         HorizontalScrollList _list;
