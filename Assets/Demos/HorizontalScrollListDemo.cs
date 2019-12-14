@@ -6,7 +6,7 @@ public class HorizontalScrollListDemo : BaseScrollListDemo
 {
     HorizontalScrollList list;
 
-    public GameObject itemPrefab;
+    
 
     protected override void InitItems()
     {
@@ -15,6 +15,9 @@ public class HorizontalScrollListDemo : BaseScrollListDemo
         {
             datas[i] = i;
         }
+
+        GameObject itemPrefab = transform.Find("Horizontal Scroll View/Item").gameObject;
+
         var ls = new HorizontalLayoutSettings();
         ls.gap = 10;
         ls.paddingRight = 500;
