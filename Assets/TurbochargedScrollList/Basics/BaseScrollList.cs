@@ -203,29 +203,6 @@ namespace Jing.TurbochargedScrollList
         }
 
         /// <summary>
-        /// 从Content中找到列表项的prefab        
-        /// </summary>
-        /// <param name="scrollView"></param>
-        /// <returns></returns>
-        GameObject FindItemPrefabFromContent()
-        {
-            var itemTransform = content.GetChild(0);
-            if (null == itemTransform)
-            {
-                return null;
-            }
-
-            //换个位置存放 
-            itemTransform.SetParent(scrollRect.transform);
-
-            this.itemPrefab = itemTransform.gameObject;
-
-            itemPrefab.SetActive(false);
-
-            return itemPrefab;
-        }
-
-        /// <summary>
         /// 刷新显示视口的大小
         /// </summary>
         protected void UpdateViewportSize()
