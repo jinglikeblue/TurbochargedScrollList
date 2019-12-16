@@ -11,7 +11,7 @@ namespace Jing.TurbochargedScrollList
 
         public GridLayoutSettings layout;
 
-        public GridScrollList _list;
+        GridScrollList _list;
 
         public GridScrollList GetList()
         {

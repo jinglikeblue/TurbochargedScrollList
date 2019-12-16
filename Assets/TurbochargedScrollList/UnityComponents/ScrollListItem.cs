@@ -6,7 +6,7 @@ namespace Jing.TurbochargedScrollList
     /// </summary>
     [RequireComponent(typeof(RectTransform))]    
     public class ScrollListItem : MonoBehaviour
-    {        
+    {               
         public RectTransform rectTransform { get; private set; }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Jing.TurbochargedScrollList
             }
             set
             {
-                if (rectTransform.sizeDelta.x != value)
+                if (rectTransform.rect.width != value)
                 {
                     rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value);                    
                 }
@@ -48,7 +48,7 @@ namespace Jing.TurbochargedScrollList
             }
             set
             {
-                if (rectTransform.sizeDelta.y != value)
+                if (rectTransform.rect.height != value)
                 {
                     rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, value);
                 }
@@ -58,17 +58,6 @@ namespace Jing.TurbochargedScrollList
         private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
-        }
-
-        internal void ChangeSize(float w, float h)
-        {
-            if (rectTransform.sizeDelta.x != w || rectTransform.sizeDelta.y != h)
-            {
-                var sd = rectTransform.sizeDelta;
-                sd.x = w;
-                sd.y = h;
-                rectTransform.sizeDelta = sd;
-            }
         }
     }
 }

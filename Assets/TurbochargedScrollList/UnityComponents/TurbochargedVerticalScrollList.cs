@@ -11,7 +11,7 @@ namespace Jing.TurbochargedScrollList
 
         public VerticalLayoutSettings layout;
 
-        public VerticalScrollList _list;
+        VerticalScrollList _list;
 
         public VerticalScrollList GetList()
         {
