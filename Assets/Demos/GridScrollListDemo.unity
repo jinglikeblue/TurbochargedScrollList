@@ -1104,18 +1104,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1604324791}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dce99e5a44d582845b157c42de7a937f, type: 3}
+  m_Script: {fileID: 11500000, guid: 147f5b743d4779042aad78e804e9af0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   itemPrefab: {fileID: 2868811791433138087, guid: d0eb7f73a53a10643ab1ad801a35ebf3,
     type: 3}
   layout:
-    paddingLeft: 50
-    paddingRight: 50
-    paddingTop: 50
-    paddingBottom: 50
-    gapX: 20
-    gapY: 20
+    paddingLeft: 0
+    paddingRight: 0
+    paddingTop: 0
+    paddingBottom: 0
+    gapX: 10
+    gapY: 10
     constraint: 0
     constraintCount: 2
 --- !u!1001 &3712598920125287845

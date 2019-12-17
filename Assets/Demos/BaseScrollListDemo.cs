@@ -97,11 +97,11 @@ public abstract class BaseScrollListDemo : MonoBehaviour
 
     protected void OnListRefresh()
     {
-        Debug.Log("列表刷新");
+        //Debug.Log("列表刷新");
     }
 
     protected void OnRebuildContent()
     {
-        Debug.Log("列表高度改变");
+        //Debug.Log("列表高度改变");
     }
 }
