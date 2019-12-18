@@ -1,22 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class DemoMain : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void VDemo()
     {
         SceneManager.LoadScene("VerticalScrollListDemo", LoadSceneMode.Single);
@@ -29,6 +15,6 @@ public class DemoMain : MonoBehaviour
 
     public void GridDemo()
     {
-        SceneManager.LoadScene("HorizontalScrollListDemo", LoadSceneMode.Single);
+        SceneManager.LoadScene("GridScrollListDemo", LoadSceneMode.Single);
     }
 }
