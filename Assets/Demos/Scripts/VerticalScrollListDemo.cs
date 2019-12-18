@@ -3,9 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class VerticalScrollListDemo : BaseScrollListDemo
-{
-    IScrollList list;
-
+{   
     public GameObject itemPrefab;
 
     protected override void InitItems()
@@ -35,42 +33,5 @@ public class VerticalScrollListDemo : BaseScrollListDemo
         }
 
         //Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
-    }
-
-
-    protected override void AddRange()
-    {
-        var datas = new int[InputNumber];
-        list.AddRange(datas);
-    }
-
-    protected override void Clear()
-    {
-        list.Clear();
-    }
-
-    protected override void Insert()
-    {
-        list.Insert(GetInputValue(), Random.Range(1,10000));
-    }
-
-    protected override void Remove()
-    {
-        list.Remove(GetInputValue());
-    }
-
-    protected override void RemoveAt()
-    {
-        list.RemoveAt(GetInputValue());
-    }
-
-    protected override void ScrollToItem()
-    {
-        list.ScrollToItem(GetInputValue());
-    }
-
-    protected override void ScrollToPosition()
-    {
-        list.ScrollToPosition(new Vector2(0, list.ContentHeight));
     }
 }

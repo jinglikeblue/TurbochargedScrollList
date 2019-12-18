@@ -8,7 +8,7 @@ namespace Jing.TurbochargedScrollList
     /// <summary>
     /// 滚动列表接口
     /// </summary>
-    interface IScrollList
+    public interface IScrollList
     {
         /// <summary>
         /// 移除指定索引位置的数据

@@ -8,6 +8,8 @@ public abstract class BaseScrollListDemo : MonoBehaviour
     [Header("初始化列表项数量")]
     public int itemCount = 100;
 
+    public IScrollList list { get; protected set; }
+
     protected GameObject scrollView;
 
     /// <summary>
@@ -24,13 +26,13 @@ public abstract class BaseScrollListDemo : MonoBehaviour
         }
     }
 
-    protected abstract void Clear();
-    protected abstract void AddRange();
-    protected abstract void Insert();
-    protected abstract void Remove();
-    protected abstract void RemoveAt();
-    protected abstract void ScrollToItem();
-    protected abstract void ScrollToPosition();
+    //protected abstract void Clear();
+    //protected abstract void AddRange();
+    //protected abstract void Insert();
+    //protected abstract void Remove();
+    //protected abstract void RemoveAt();
+    //protected abstract void ScrollToItem();
+    //protected abstract void ScrollToPosition();
 
     protected int GetInputValue()
     {
@@ -94,6 +96,43 @@ public abstract class BaseScrollListDemo : MonoBehaviour
         {
             ScrollToPosition();
         });
+    }
+
+
+    protected void AddRange()
+    {
+        var datas = new int[InputNumber];
+        list.AddRange(datas);
+    }
+
+    protected void Clear()
+    {
+        list.Clear();
+    }
+
+    protected void Insert()
+    {
+        list.Insert(GetInputValue(), Random.Range(1, 10000));
+    }
+
+    protected void Remove()
+    {
+        list.Remove(GetInputValue());
+    }
+
+    protected void RemoveAt()
+    {
+        list.RemoveAt(GetInputValue());
+    }
+
+    protected void ScrollToItem()
+    {
+        list.ScrollToItem(GetInputValue());
+    }
+
+    protected void ScrollToPosition()
+    {
+        list.ScrollToPosition(new Vector2(0, list.ContentHeight));
     }
 
     void Start()
