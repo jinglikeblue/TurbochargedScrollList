@@ -102,6 +102,10 @@ public abstract class BaseScrollListDemo : MonoBehaviour
     protected void AddRange()
     {
         var datas = new int[InputNumber];
+        for(int i = 0; i < datas.Length; i++)
+        {
+            datas[i] = Random.Range(1, 10000);
+        }
         list.AddRange(datas);
     }
 

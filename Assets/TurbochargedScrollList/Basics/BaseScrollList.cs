@@ -192,7 +192,8 @@ namespace Jing.TurbochargedScrollList
         protected void InitItem(GameObject itemPrefab)
         {
             this.itemPrefab = itemPrefab;
-            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().rect.size;            
+            itemDefaultfSize = itemPrefab.GetComponent<RectTransform>().rect.size;
+            itemPrefab.SetActive(false);
 
             scrollPos = Vector2.up;
 

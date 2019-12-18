@@ -29,7 +29,8 @@ public class VerticalScrollListDemo : BaseScrollListDemo
         {
             var listItem = item.GetComponent<ListItem>();
             var listRT = list.scrollRect.GetComponent<RectTransform>();
-            listItem.Refresh(listRT.rect.width - 40, 100 + ((item.index % 15) * 20));
+            var content = string.Format("Index:{0} Data:{1}", item.index, item.data);
+            listItem.Refresh(listRT.rect.width - 40, 100 + ((item.index % 15) * 20), content);
         }
 
         //Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
