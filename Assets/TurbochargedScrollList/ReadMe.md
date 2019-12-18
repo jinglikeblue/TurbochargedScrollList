@@ -2,7 +2,8 @@
 
 - Basics
     - BaseScrollList.cs  
-    列表类基类
+    列表类基类  
+    the base class of all scrolllist
     - EGridConstraint.cs  
     网格列表的排列枚举，和GridLayoutGroup使用方式一致
     - GridPos.cs  
