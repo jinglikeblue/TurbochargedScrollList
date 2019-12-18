@@ -12,9 +12,9 @@ EditorBuildSettings:
     path: Assets/Demos/VerticalScrollListDemo.unity
     guid: 14f2860553c579a4083555b1fbcff35c
   - enabled: 1
-    path: Assets/Demos/HorizontalScrollListDemo_Old.unity
-    guid: f414cbe4cb8144346897785306f4a107
+    path: Assets/Demos/HorizontalScrollListDemo.unity
+    guid: de8f0ed9f0d10ee429f1d1fdc4ad00ff
   - enabled: 1
     path: Assets/Demos/GridScrollListDemo.unity
-    guid: dfd35fcca983cf84ea9c962dc19c338d
+    guid: 1429dc543c0113c4db5d3e689c9d4dd6
   m_configObjects: {}

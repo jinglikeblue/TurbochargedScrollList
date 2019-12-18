@@ -20,12 +20,14 @@ public class GridScrollListDemo : BaseScrollListDemo
         list.AddRange(datas);
     }
 
-    private void OnItemRender(ScrollListItem item, object data, bool isFresh)
+    private void OnItemRender(ScrollListItem item, object data, bool isRefresh)
     {
-        if (isFresh)
+        if (isRefresh)
         {
-            item.GetComponent<ListItem>().Refresh(0,0,null);
-            //Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
+            var listItem = item.GetComponent<ListItem>();
+            var listRT = list.scrollRect.GetComponent<RectTransform>();
+            var content = string.Format("Index:{0}\nData:{1}", item.index, item.data);
+            listItem.Refresh(150 + ((item.index % 15) * 20), listRT.rect.height - 40, content);
         }
     }
 }

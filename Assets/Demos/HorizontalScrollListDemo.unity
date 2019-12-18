@@ -348,9 +348,17 @@ PrefabInstance:
     - target: {fileID: 6448393674958764523, guid: ac24b748c922cd04cb7864debe5c8c72,
         type: 3}
       propertyPath: m_Text
-      value: "this demo used code to create HorizontalScrollList.\n\nand get ItemPrefab
-        from Hierarchy\n\ncode position: \n<color=#106DED>[HorizontalScrollListDemo.cs]
-        Line:17</color>\n\nHorizontalLayoutSettings:\n{gap:10, paddingRight:500}\n\n\n"
+      value: 'this demo used code to create HorizontalScrollList.
+
+
+        and get ItemPrefab from Hierarchy
+
+
+        <color=#106DED>[HorizontalScrollListDemo.cs]</color> show how it work
+
+
+
+'
       objectReference: {fileID: 0}
     - target: {fileID: 6448393674958764523, guid: ac24b748c922cd04cb7864debe5c8c72,
         type: 3}
