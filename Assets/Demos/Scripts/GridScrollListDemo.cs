@@ -26,7 +26,7 @@ public class GridScrollListDemo : BaseScrollListDemo
     {
         if (isFresh)
         {
-            item.GetComponent<Item>().Refresh();
+            item.GetComponent<ListItem>().Refresh(0,0);
             //Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
         }
     }

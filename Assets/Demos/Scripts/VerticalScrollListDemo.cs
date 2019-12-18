@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class VerticalScrollListDemo : BaseScrollListDemo
-{       
+{
     IScrollList list;
 
     public GameObject itemPrefab;
@@ -18,7 +18,7 @@ public class VerticalScrollListDemo : BaseScrollListDemo
 
         var layout = new VerticalLayoutSettings();
         layout.gap = 10;
-        layout.paddingTop = 50;    
+        layout.paddingTop = 50;
         list = new VerticalScrollList(scrollView.GetComponent<ScrollRect>(), itemPrefab, layout);
         list.onRenderItem += OnItemRender;
         list.onRebuildContent += OnRebuildContent;
@@ -27,8 +27,14 @@ public class VerticalScrollListDemo : BaseScrollListDemo
     }
     protected void OnItemRender(ScrollListItem item, object data, bool isRefresh)
     {
-        item.GetComponent<Item>().Refresh();
-        Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
+        if (isRefresh)
+        {
+            var listItem = item.GetComponent<ListItem>();
+            var listRT = list.scrollRect.GetComponent<RectTransform>();
+            listItem.Refresh(listRT.rect.width - 40, 100 + ((item.index % 15) * 20));
+        }
+
+        //Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
     }
 
 
@@ -45,22 +51,22 @@ public class VerticalScrollListDemo : BaseScrollListDemo
 
     protected override void Insert()
     {
-        list.Insert(2, 0);
+        list.Insert(GetInputValue(), Random.Range(1,10000));
     }
 
     protected override void Remove()
     {
-        list.Remove(0);        
+        list.Remove(GetInputValue());
     }
 
     protected override void RemoveAt()
     {
-        list.RemoveAt(2);
+        list.RemoveAt(GetInputValue());
     }
 
     protected override void ScrollToItem()
     {
-        list.ScrollToItem(20);
+        list.ScrollToItem(GetInputValue());
     }
 
     protected override void ScrollToPosition()

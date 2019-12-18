@@ -28,7 +28,7 @@ public class HorizontalScrollListDemo : BaseScrollListDemo
 
     protected void OnItemRender(ScrollListItem item, object data, bool isRefresh)
     {
-        item.GetComponent<Item>().Refresh();
+        item.GetComponent<ListItem>().Refresh(0,0);
         Debug.LogFormat("渲染Item [idx:{0}, value:{1}]", item.index, data);
     }
 

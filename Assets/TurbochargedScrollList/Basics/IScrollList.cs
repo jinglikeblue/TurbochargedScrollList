@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Jing.TurbochargedScrollList
 {
@@ -19,6 +20,8 @@ namespace Jing.TurbochargedScrollList
         /// 清空列表，实际上是将数据清除，并将对象放入对象池
         /// </summary>
         void Clear();
+
+        ScrollRect scrollRect { get; }
 
         /// <summary>
         /// 列表项数量

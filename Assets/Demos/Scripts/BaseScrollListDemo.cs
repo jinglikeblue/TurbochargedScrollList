@@ -32,6 +32,16 @@ public abstract class BaseScrollListDemo : MonoBehaviour
     protected abstract void ScrollToItem();
     protected abstract void ScrollToPosition();
 
+    protected int GetInputValue()
+    {
+        var input = GameObject.Find("InputNumber").GetComponent<InputField>();
+        if (string.IsNullOrEmpty(input.text))
+        {
+            return 0;
+        }
+        return int.Parse(input.text);
+    }
+
     void Awake()
     {
         scrollView = FindObjectOfType<ScrollRect>().gameObject;
