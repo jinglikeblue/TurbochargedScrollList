@@ -1,5 +1,6 @@
 ﻿using Jing.TurbochargedScrollList;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public abstract class BaseScrollListDemo : MonoBehaviour
@@ -34,6 +35,12 @@ public abstract class BaseScrollListDemo : MonoBehaviour
     void Awake()
     {
         scrollView = FindObjectOfType<ScrollRect>().gameObject;
+
+        var btnExit = GameObject.Find("BtnExit").GetComponent<Button>();
+        btnExit.onClick.AddListener(() =>
+        {
+            SceneManager.LoadScene("DemoMain");
+        });
 
         var btnClear = GameObject.Find("BtnClear").GetComponent<Button>();
         btnClear.onClick.AddListener(() =>
@@ -74,7 +81,7 @@ public abstract class BaseScrollListDemo : MonoBehaviour
 
         var btnScroll2End = GameObject.Find("BtnScroll2End").GetComponent<Button>();
         btnScroll2End.onClick.AddListener(() =>
-        {            
+        {
             ScrollToPosition();
         });
     }
@@ -90,7 +97,7 @@ public abstract class BaseScrollListDemo : MonoBehaviour
 
     void OnEnable()
     {
-        
+
     }
 
     protected abstract void InitItems();
