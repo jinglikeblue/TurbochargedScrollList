@@ -13,7 +13,7 @@ public class HorizontalScrollListDemo : BaseScrollListDemo
         }
 
         GameObject itemPrefab = transform.Find("Scroll View/ListItem").gameObject;
-
+        
         var ls = new HorizontalLayoutSettings();
         ls.gap = 10;
         ls.paddingRight = 500;
