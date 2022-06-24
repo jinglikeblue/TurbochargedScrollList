@@ -26,6 +26,12 @@ TurbochargedScrollList的核心原理是基于对象池技术，让ScrollView变
 
 ![网格列表](Docs/cut_g.jpg)
 
+## 视频演示
+
+>为了方便上手，对于每种制作流程，录制了视频来演示了操作
+
+**B站:** [https://www.bilibili.com/video/av512602501](https://www.bilibili.com/video/av512602501)
+
 ## 代码介绍
 
 [Assets/TurbochargedScrollList/ReadMe.md](Assets/TurbochargedScrollList/ReadMe.md)
