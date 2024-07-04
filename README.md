@@ -46,3 +46,6 @@ TurbochargedScrollList的核心原理是基于对象池技术，让ScrollView变
 
 [Assets/TurbochargedScrollList/ReadMe.md](Assets/TurbochargedScrollList/ReadMe.md)
 
+## TODO
+- 实现指定索引位的列表项刷新（用在修改数据后，需要立刻刷新展示的情况）
+
