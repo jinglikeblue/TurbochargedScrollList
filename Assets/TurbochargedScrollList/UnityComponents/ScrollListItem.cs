@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
+
 namespace Jing.TurbochargedScrollList
 {
     /// <summary>
     /// 滚动列表项
     /// </summary>
-    [RequireComponent(typeof(RectTransform))]    
+    [RequireComponent(typeof(RectTransform))]
     public class ScrollListItem : MonoBehaviour
-    {               
+    {
         public RectTransform rectTransform { get; private set; }
 
         /// <summary>
@@ -24,15 +25,12 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public float width
         {
-            get
-            {
-                return rectTransform.rect.width;
-            }
+            get { return rectTransform.rect.width; }
             set
             {
                 if (rectTransform.rect.width != value)
                 {
-                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value);                    
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value);
                 }
             }
         }
@@ -42,10 +40,7 @@ namespace Jing.TurbochargedScrollList
         /// </summary>
         public float height
         {
-            get
-            {
-                return rectTransform.rect.height;
-            }
+            get { return rectTransform.rect.height; }
             set
             {
                 if (rectTransform.rect.height != value)
@@ -58,6 +53,11 @@ namespace Jing.TurbochargedScrollList
         private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
+        }
+
+        public string ToString()
+        {
+            return $"[Index = {index}, data = {data}, width = {width}, height = {height}]";
         }
     }
 }

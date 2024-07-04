@@ -5,8 +5,7 @@ using UnityEngine.UI;
 
 public abstract class BaseScrollListDemo : MonoBehaviour
 {
-    [Header("初始化列表项数量")]
-    public int itemCount = 100;
+    [Header("初始化列表项数量")] public int itemCount = 100;
 
     public IScrollList list { get; protected set; }
 
@@ -41,6 +40,7 @@ public abstract class BaseScrollListDemo : MonoBehaviour
         {
             return 0;
         }
+
         return int.Parse(input.text);
     }
 
@@ -49,63 +49,40 @@ public abstract class BaseScrollListDemo : MonoBehaviour
         scrollView = FindObjectOfType<ScrollRect>().gameObject;
 
         var btnExit = GameObject.Find("BtnExit").GetComponent<Button>();
-        btnExit.onClick.AddListener(() =>
-        {
-            SceneManager.LoadScene("DemoMain");
-        });
+        btnExit.onClick.AddListener(() => { SceneManager.LoadScene("DemoMain"); });
 
         var btnClear = GameObject.Find("BtnClear").GetComponent<Button>();
-        btnClear.onClick.AddListener(() =>
-        {
-            Clear();
-        });
+        btnClear.onClick.AddListener(() => { Clear(); });
 
         var btnAdd = GameObject.Find("BtnAdd").GetComponent<Button>();
         var input = GameObject.Find("InputNumber").GetComponent<InputField>();
-        btnAdd.onClick.AddListener(() =>
-        {
-            AddRange();
-        });
+        btnAdd.onClick.AddListener(() => { AddRange(); });
 
         var btnInsert = GameObject.Find("BtnInsert").GetComponent<Button>();
-        btnInsert.onClick.AddListener(() =>
-        {
-            Insert();
-        });
+        btnInsert.onClick.AddListener(() => { Insert(); });
 
         var btnRemoveAt = GameObject.Find("BtnRemoveAt").GetComponent<Button>();
-        btnRemoveAt.onClick.AddListener(() =>
-        {
-            RemoveAt();
-        });
+        btnRemoveAt.onClick.AddListener(() => { RemoveAt(); });
 
         var btnRemove = GameObject.Find("BtnRemove").GetComponent<Button>();
-        btnRemove.onClick.AddListener(() =>
-        {
-            Remove();
-        });
+        btnRemove.onClick.AddListener(() => { Remove(); });
 
         var btnScroll2Index = GameObject.Find("BtnScroll2Index").GetComponent<Button>();
-        btnScroll2Index.onClick.AddListener(() =>
-        {
-            ScrollToItem();
-        });
+        btnScroll2Index.onClick.AddListener(() => { ScrollToItem(); });
 
         var btnScroll2End = GameObject.Find("BtnScroll2End").GetComponent<Button>();
-        btnScroll2End.onClick.AddListener(() =>
-        {
-            ScrollToPosition();
-        });
+        btnScroll2End.onClick.AddListener(() => { ScrollToPosition(); });
     }
 
 
     protected void AddRange()
     {
         var datas = new int[InputNumber];
-        for(int i = 0; i < datas.Length; i++)
+        for (int i = 0; i < datas.Length; i++)
         {
             datas[i] = Random.Range(1, 10000);
         }
+
         list.AddRange(datas);
     }
 
@@ -145,23 +122,75 @@ public abstract class BaseScrollListDemo : MonoBehaviour
         Application.targetFrameRate = 60;
 #endif
 
-        InitItems();
+        var datas = new int[itemCount];
+        for (int i = 0; i < datas.Length; i++)
+        {
+            datas[i] = i;
+        }
+        
+        InitList();
+        
+        list.AddRange(datas);
+        
+        list.onRenderItem += OnItemRender;
+        list.onRebuildContent += OnRebuildContent;
+        list.onRefresh += OnListRefresh;
+        list.onItemBeforeReuse += OnItemBeforeReuse;
     }
 
     void OnEnable()
     {
-
     }
 
-    protected abstract void InitItems();
+    /// <summary>
+    /// 初始化列表
+    /// </summary>
+    protected abstract void InitList();
+
+    /// <summary>
+    /// 计算宽高
+    /// </summary>
+    /// <param name="rt"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    protected abstract (float, float) CalculateItemSize(RectTransform rt, int index);
+
+    protected void OnItemRender(ScrollListItem item, object data, bool isFresh)
+    {
+        Debug.Log($"渲染列表项: {item.ToString()}, [data:{data}], [isFresh:{isFresh}]");
+
+        if (isFresh)
+        {
+            var listItem = item.GetComponent<ListItem>();
+            var listRT = list.scrollRect.GetComponent<RectTransform>();
+            var (w,h) = CalculateItemSize(listRT, item.index);
+            var content = string.Format("Index:{0} Data:{1}", item.index, item.data);
+            listItem.Refresh(w, h, content);
+
+            var button = item.GetComponent<Button>();
+            button.onClick.AddListener(() => { Debug.Log($"点击列表项: {item.ToString()}"); });
+        }
+    }
 
     protected void OnListRefresh()
     {
-        //Debug.Log("列表刷新");
+        // Debug.Log("列表刷新");
     }
 
     protected void OnRebuildContent()
     {
-        //Debug.Log("列表高度改变");
+        Debug.Log($"列表高度改变: {list.ContentHeight}");
+    }
+
+    protected void OnItemBeforeReuse(ScrollListItem item)
+    {
+        Debug.Log($"列表项被复用: {item.ToString()}");
+
+        #region 清理旧的事件
+
+        var button = item.GetComponent<Button>();
+        button.onClick.RemoveAllListeners();
+
+        #endregion
     }
 }

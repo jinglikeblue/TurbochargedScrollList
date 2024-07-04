@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ namespace Jing.TurbochargedScrollList
     public delegate void ItemBeforeReuseDelegate(ScrollListItem item);
 
     /// <summary>
-    /// 渲染列表项的委托
+    /// 渲染列表项
     /// </summary>
     /// <param name="item">列表项</param>
     /// <param name="data">列表项对应的数据</param>
@@ -141,7 +142,8 @@ namespace Jing.TurbochargedScrollList
         protected readonly List<ScrollListItemModel> _itemModels = new List<ScrollListItemModel>();
 
         /// <summary>
-        /// 列表项将被复用前的实践
+        /// 列表项将被复用前的事件。
+        /// PS：可以在该事件中处理列表项上绑定的事件等数据。
         /// </summary>
         public event ItemBeforeReuseDelegate onItemBeforeReuse;
 
@@ -219,9 +221,16 @@ namespace Jing.TurbochargedScrollList
             }
         }
 
-        protected void RenderItem(ScrollListItem item, object data, bool isOnlySwitchActive)
+        /// <summary>
+        /// 渲染列表项
+        /// </summary>
+        /// <param name="item">列表项</param>
+        /// <param name="data">列表项对应的数据</param>
+        /// <param name="isFresh">如果为true, 则item的数据或index产生了改变。如果为false，则仅仅是Active从false变为了true</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RenderItem(ScrollListItem item, object data, bool isFresh)
         {
-            onRenderItem?.Invoke(item, data, isOnlySwitchActive);
+            onRenderItem?.Invoke(item, data, isFresh);
         }
 
         /// <summary>
@@ -291,7 +300,7 @@ namespace Jing.TurbochargedScrollList
         }
 
         /// <summary>
-        /// 检查每一个现实中的item的大小
+        /// 检查每一个显示中的item的大小
         /// </summary>
         protected void CheckItemsSize()
         {
